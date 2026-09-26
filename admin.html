@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Dashboard &middot; Leave Request System</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="admin">
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="crest-sm">AEC</div>
+      <div class="brand-mark">Annapoorana<br/>Engineering College</div>
+    </div>
+    <div class="brand-sub">Student Leave Request System</div>
+
+    <!-- Left Sidebar Live Running Clock -->
+    <div class="sidebar-live-clock">
+      <div class="clock-date">📅 <span class="live-clock-date">-- --- ----</span></div>
+      <div class="clock-time">⏰ <span class="live-clock-time">--:--:--</span></div>
+    </div>
+
+    <button class="nav-link active" data-view="students" type="button">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
+      Add Student
+    </button>
+    <button class="nav-link" data-view="staff" type="button">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="2.6"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17.5" cy="9" r="2"/><path d="M15.5 19c.3-2.2 1.8-3.6 3.7-3.6"/></svg></span>
+      Add Staff
+    </button>
+    <button class="nav-link" data-view="requests" type="button">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14v18l-7-4-7 4z"/></svg></span>
+      All Requests
+    </button>
+
+    <div class="sidebar-foot">
+      <button class="btn btn-refresh btn-sm btn-block" onclick="refreshDashboard()" id="sideRefreshBtn" title="Refresh dashboard data">
+        <svg class="refresh-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        <span>Refresh</span>
+      </button>
+      <div class="sidebar-user"><strong>Administrator</strong>Full access</div>
+      <button class="btn btn-logout btn-sm btn-block" onclick="logout()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Log Out
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- Add student -->
+    <section id="view-students">
+      <div class="main-header">
+        <div>
+          <h1>Add Student</h1>
+          <p>Create a login for a new student with their Batch, Year, and Department.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="form-error" id="studentError"></div>
+        <div class="form-success" id="studentSuccess">Student account created successfully.</div>
+        <form id="studentForm">
+          <div class="grid-2">
+            <div class="field">
+              <label for="s_regNo">Register Number *</label>
+              <input type="text" id="s_regNo" placeholder="e.g. 610225205099" required />
+            </div>
+            <div class="field">
+              <label for="s_name">Full Name *</label>
+              <input type="text" id="s_name" placeholder="Student name" required />
+            </div>
+
+            <!-- Department with dynamic add option -->
+            <div class="field">
+              <label for="s_department">Department *</label>
+              <select id="s_department" onchange="handleDeptChange('s_department', 's_customDeptBox')">
+                <option value="IT">IT - Information Technology</option>
+                <option value="CSE">CSE - Computer Science & Engineering</option>
+                <option value="ECE">ECE - Electronics & Comm. Engg</option>
+                <option value="EEE">EEE - Electrical & Electronics Engg</option>
+                <option value="MECH">MECH - Mechanical Engineering</option>
+                <option value="CIVIL">CIVIL - Civil Engineering</option>
+                <option value="AUTOMOBILE">AUTOMOBILE - Automobile Engineering</option>
+                <option value="BME">BME - Biomedical Engineering</option>
+                <option value="AIDS">AIDS - Artificial Intelligence & Data Science</option>
+                <option value="__custom__">➕ Add New Department...</option>
+              </select>
+              <div id="s_customDeptBox" style="display:none;" class="custom-input-group">
+                <input type="text" id="s_customDeptInput" placeholder="Enter new Department name" />
+                <button type="button" class="btn btn-outline btn-sm" onclick="saveCustomDept('s_department', 's_customDeptInput', 's_customDeptBox')">Add</button>
+              </div>
+            </div>
+
+            <!-- Academic Year -->
+            <div class="field">
+              <label for="s_year">Academic Year *</label>
+              <select id="s_year">
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year" selected>2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+              </select>
+            </div>
+
+            <!-- Batch with dynamic add option -->
+            <div class="field">
+              <label for="s_batch">Batch *</label>
+              <select id="s_batch" onchange="handleBatchChange('s_batch', 's_customBatchBox')">
+                <option value="2022-2026">2022-2026</option>
+                <option value="2023-2027">2023-2027</option>
+                <option value="2024-2028" selected>2024-2028</option>
+                <option value="2025-2029">2025-2029</option>
+                <option value="__custom__">➕ Add New Batch...</option>
+              </select>
+              <div id="s_customBatchBox" style="display:none;" class="custom-input-group">
+                <input type="text" id="s_customBatchInput" placeholder="e.g. 2026-2030" />
+                <button type="button" class="btn btn-outline btn-sm" onclick="saveCustomBatch('s_batch', 's_customBatchInput', 's_customBatchBox')">Add</button>
+              </div>
+            </div>
+
+            <!-- Student Category: Hosteller vs Day Scholar -->
+            <div class="field">
+              <label for="s_isHosteller">Student Category *</label>
+              <select id="s_isHosteller" onchange="toggleHostelFields()">
+                <option value="false" selected>🎒 Day Scholar</option>
+                <option value="true">🏢 Hostel Resident</option>
+              </select>
+            </div>
+
+            <!-- Conditional Hostel Fields: Floor & Room No -->
+            <div id="hostelFieldsWrapper" style="display:none; grid-column: span 2;" class="grid-2">
+              <div class="field">
+                <label for="s_floor">Hostel Floor / Block *</label>
+                <select id="s_floor">
+                  <option value="Ground Floor">Ground Floor</option>
+                  <option value="1st Floor">1st Floor</option>
+                  <option value="2nd Floor">2nd Floor</option>
+                  <option value="3rd Floor">3rd Floor</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="s_room">Hostel Room Number *</label>
+                <input type="text" id="s_room" placeholder="e.g. 108, H2-114" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="s_studentPhone">Student Phone Number *</label>
+              <input type="text" id="s_studentPhone" placeholder="10-digit student mobile number" required />
+            </div>
+            <div class="field">
+              <label for="s_parentContact">Parent Contact Number *</label>
+              <input type="text" id="s_parentContact" placeholder="10-digit parent mobile number" required />
+            </div>
+            <div class="field">
+              <label for="s_password">Set Login Password *</label>
+              <input type="password" id="s_password" value="student123" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:10px;">Create Student Account</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+          <h2 style="margin:0;">Existing Students</h2>
+          <button type="button" class="btn btn-outline btn-sm" onclick="printStudentList()">
+            🖨️ Print Student List
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Reg. No.</th><th>Name</th><th>Dept / Year / Batch</th><th>Category / Room</th><th>Contact Numbers</th><th>Actions</th></tr></thead>
+            <tbody id="studentsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add staff -->
+    <section id="view-staff" style="display:none;">
+      <div class="main-header">
+        <div>
+          <h1>Add Staff</h1>
+          <p>Create a login for Class Incharge (Batch-Wise), HOD (Dept-Wise), or Hostel Warden.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="form-error" id="staffError"></div>
+        <div class="form-success" id="staffSuccess">Staff account created successfully.</div>
+        <form id="staffForm">
+          <div class="grid-2">
+            <div class="field">
+              <label for="st_staffId">Staff ID *</label>
+              <input type="text" id="st_staffId" placeholder="e.g. STF-INC02" required />
+            </div>
+            <div class="field">
+              <label for="st_name">Full Name *</label>
+              <input type="text" id="st_name" placeholder="Staff name with initial" required />
+            </div>
+            <div class="field">
+              <label for="st_designation">Role in Approval Chain *</label>
+              <select id="st_designation" onchange="toggleStaffFields()">
+                <option value="incharge">Class Incharge (Batch-Wise)</option>
+                <option value="hod">Head of Department (HOD)</option>
+                <option value="warden">Hostel Warden</option>
+              </select>
+            </div>
+            <div class="field" id="st_dept_group">
+              <label for="st_department">Department *</label>
+              <select id="st_department" onchange="handleDeptChange('st_department', 'st_customDeptBox')">
+                <option value="IT">IT - Information Technology</option>
+                <option value="CSE">CSE - Computer Science & Engineering</option>
+                <option value="ECE">ECE - Electronics & Comm. Engg</option>
+                <option value="EEE">EEE - Electrical & Electronics Engg</option>
+                <option value="MECH">MECH - Mechanical Engineering</option>
+                <option value="CIVIL">CIVIL - Civil Engineering</option>
+                <option value="AUTOMOBILE">AUTOMOBILE - Automobile Engineering</option>
+                <option value="BME">BME - Biomedical Engineering</option>
+                <option value="AIDS">AIDS - Artificial Intelligence & Data Science</option>
+                <option value="__custom__">➕ Add New Department...</option>
+              </select>
+              <div id="st_customDeptBox" style="display:none;" class="custom-input-group">
+                <input type="text" id="st_customDeptInput" placeholder="Enter new Department name" />
+                <button type="button" class="btn btn-outline btn-sm" onclick="saveCustomDept('st_department', 'st_customDeptInput', 'st_customDeptBox')">Add</button>
+              </div>
+            </div>
+            <div class="field" id="st_batch_group">
+              <label for="st_batch">Assigned Batch (For Class Incharge) *</label>
+              <select id="st_batch" onchange="handleBatchChange('st_batch', 'st_customBatchBox')">
+                <option value="2022-2026">2022-2026</option>
+                <option value="2023-2027">2023-2027</option>
+                <option value="2024-2028" selected>2024-2028</option>
+                <option value="2025-2029">2025-2029</option>
+                <option value="__custom__">➕ Add New Batch...</option>
+              </select>
+              <div id="st_customBatchBox" style="display:none;" class="custom-input-group">
+                <input type="text" id="st_customBatchInput" placeholder="e.g. 2026-2030" />
+                <button type="button" class="btn btn-outline btn-sm" onclick="saveCustomBatch('st_batch', 'st_customBatchInput', 'st_customBatchBox')">Add</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="st_password">Set Login Password *</label>
+              <input type="password" id="st_password" value="staff123" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:10px;">Create Staff Account</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Existing Staff Members</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Staff ID</th><th>Name</th><th>Role</th><th>Dept / Assigned Batch</th><th>Actions</th></tr></thead>
+            <tbody id="staffTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- All requests -->
+    <section id="view-requests" style="display:none;">
+      <div class="main-header">
+        <div>
+          <h1>All Leave Requests</h1>
+          <p>Every request submitted across the college, with live progress.</p>
+        </div>
+      </div>
+      <div class="card">
+        <!-- Live Search, Department & Batch Filters for Admin Requests -->
+        <div class="history-toolbar">
+          <div class="search-box">
+            <input type="text" id="adminReqSearch" placeholder="🔍 Search by Roll No. or Student Name..." oninput="applyAdminRequestFilters()" />
+          </div>
+          <div class="filter-group">
+            <select id="adminReqDeptFilter" onchange="applyAdminRequestFilters()">
+              <option value="">🏢 All Departments</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+              <option value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</option>
+              <option value="Automobile Engineering">Automobile Engineering</option>
+              <option value="Electrical and Electronics Engineering">EEE</option>
+              <option value="Biomedical Engineering">BME</option>
+              <option value="Mechanical Engineering">Mechanical Engineering</option>
+              <option value="Civil Engineering">Civil Engineering</option>
+              <option value="Electronics and Communication Engineering">ECE</option>
+            </select>
+            <select id="adminReqBatchFilter" onchange="applyAdminRequestFilters()">
+              <option value="">🏷️ All Batches</option>
+              <option value="2022-2026">Batch 2022-2026</option>
+              <option value="2023-2027">Batch 2023-2027</option>
+              <option value="2024-2028">Batch 2024-2028</option>
+              <option value="2025-2029">Batch 2025-2029</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Student</th><th>Batch / Dept</th><th>Type</th><th>Dates</th><th>Status</th><th>Progress</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="allRequestsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Edit Student Modal -->
+<div class="modal-backdrop" id="editStudentModal">
+  <div class="modal" style="max-width:560px;">
+    <h3>Edit Student Details</h3>
+    <form id="editStudentForm" onsubmit="submitEditStudent(event)">
+      <input type="hidden" id="edit_s_id" />
+      <div class="grid-2">
+        <div class="field">
+          <label for="edit_s_regNo">Register Number (Read-only)</label>
+          <input type="text" id="edit_s_regNo" disabled style="background:#f1f5f9; cursor:not-allowed;" />
+        </div>
+        <div class="field">
+          <label for="edit_s_name">Student Full Name *</label>
+          <input type="text" id="edit_s_name" required />
+        </div>
+        <div class="field">
+          <label for="edit_s_department">Department *</label>
+          <select id="edit_s_department">
+            <option value="Information Technology">Information Technology</option>
+            <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+            <option value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</option>
+            <option value="Automobile Engineering">Automobile Engineering</option>
+            <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering (EEE)</option>
+            <option value="Biomedical Engineering">Biomedical Engineering (BME)</option>
+            <option value="Mechanical Engineering">Mechanical Engineering</option>
+            <option value="Civil Engineering">Civil Engineering</option>
+            <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="edit_s_year">Academic Year *</label>
+          <select id="edit_s_year">
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="edit_s_batch">Batch *</label>
+          <select id="edit_s_batch">
+            <option value="2022-2026">2022-2026</option>
+            <option value="2023-2027">2023-2027</option>
+            <option value="2024-2028">2024-2028</option>
+            <option value="2025-2029">2025-2029</option>
+            <option value="2026-2030">2026-2030</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="edit_s_category">Residence Category *</label>
+          <select id="edit_s_category" onchange="toggleEditHostelFields()">
+            <option value="hosteller">Hostel Resident</option>
+            <option value="dayscholar">Day Scholar</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Dynamic Hostel Floor & Room Fields -->
+      <div id="edit_s_hostelGroup" class="grid-2" style="margin-top:6px;">
+        <div class="field">
+          <label for="edit_s_floor">Hostel Floor / Block</label>
+          <select id="edit_s_floor">
+            <option value="Ground Floor">Ground Floor</option>
+            <option value="1st Floor">1st Floor</option>
+            <option value="2nd Floor">2nd Floor</option>
+            <option value="3rd Floor">3rd Floor</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="edit_s_room">Room Number</label>
+          <input type="text" id="edit_s_room" placeholder="e.g. 108" />
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:6px;">
+        <div class="field">
+          <label for="edit_s_studentPhone">Student Phone Number *</label>
+          <input type="text" id="edit_s_studentPhone" placeholder="10-digit student mobile" required />
+        </div>
+        <div class="field">
+          <label for="edit_s_parentContact">Parent Contact Mobile *</label>
+          <input type="text" id="edit_s_parentContact" required />
+        </div>
+      </div>
+      <div class="field" style="margin-top:6px;">
+        <label for="edit_s_password">Reset Password (Optional)</label>
+        <input type="password" id="edit_s_password" placeholder="Leave blank to keep existing" />
+      </div>
+
+      <div class="modal-actions" style="margin-top:16px;">
+        <button class="btn btn-outline btn-sm" type="button" onclick="closeEditStudent()">Cancel</button>
+        <button class="btn btn-primary btn-sm" type="submit" id="btnSaveStudent">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Staff Modal -->
+<div class="modal-backdrop" id="editStaffModal">
+  <div class="modal" style="max-width:560px;">
+    <h3>Edit Staff Member</h3>
+    <form id="editStaffForm" onsubmit="submitEditStaff(event)">
+      <input type="hidden" id="edit_st_id" />
+      <div class="grid-2">
+        <div class="field">
+          <label for="edit_st_staffId">Staff ID (Read-only)</label>
+          <input type="text" id="edit_st_staffId" disabled style="background:#f1f5f9; cursor:not-allowed;" />
+        </div>
+        <div class="field">
+          <label for="edit_st_name">Staff Full Name *</label>
+          <input type="text" id="edit_st_name" required />
+        </div>
+        <div class="field">
+          <label for="edit_st_designation">Role in Approval Chain *</label>
+          <select id="edit_st_designation" onchange="toggleEditStaffFields()">
+            <option value="incharge">Class Incharge (Batch-Wise)</option>
+            <option value="hod">Head of Department (HOD)</option>
+            <option value="warden">Hostel Warden</option>
+          </select>
+        </div>
+        <div class="field" id="edit_st_dept_group">
+          <label for="edit_st_department">Department</label>
+          <select id="edit_st_department">
+            <option value="Information Technology">Information Technology</option>
+            <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+            <option value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</option>
+            <option value="Automobile Engineering">Automobile Engineering</option>
+            <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering (EEE)</option>
+            <option value="Biomedical Engineering">Biomedical Engineering (BME)</option>
+            <option value="Mechanical Engineering">Mechanical Engineering</option>
+            <option value="Civil Engineering">Civil Engineering</option>
+            <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+          </select>
+        </div>
+        <div class="field" id="edit_st_batch_group">
+          <label for="edit_st_batch">Assigned Batch</label>
+          <select id="edit_st_batch">
+            <option value="2022-2026">2022-2026</option>
+            <option value="2023-2027">2023-2027</option>
+            <option value="2024-2028">2024-2028</option>
+            <option value="2025-2029">2025-2029</option>
+            <option value="2026-2030">2026-2030</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="edit_st_password">Reset Password (Optional)</label>
+          <input type="password" id="edit_st_password" placeholder="Leave blank to keep existing" />
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:16px;">
+        <button class="btn btn-outline btn-sm" type="button" onclick="closeEditStaff()">Cancel</button>
+        <button class="btn btn-primary btn-sm" type="submit" id="btnSaveStaff">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="print-sheet" id="printSheet"></div>
+
+<script src="script.js"></script>
+<script>
+  const session = requireRole("admin");
+
+  document.querySelectorAll(".nav-link[data-view]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-link[data-view]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      ["students", "staff", "requests"].forEach(v => {
+        document.getElementById("view-" + v).style.display = v === btn.dataset.view ? "block" : "none";
+      });
+      if (btn.dataset.view === "students") renderStudents();
+      if (btn.dataset.view === "staff") renderStaff();
+      if (btn.dataset.view === "requests") renderAllRequests();
+    });
+  });
+
+  function toggleHostelFields() {
+    const isHosteller = document.getElementById("s_isHosteller").value === "true";
+    const wrapper = document.getElementById("hostelFieldsWrapper");
+    wrapper.style.display = isHosteller ? "grid" : "none";
+  }
+
+  function handleDeptChange(selectId, boxId) {
+    const sel = document.getElementById(selectId);
+    const box = document.getElementById(boxId);
+    box.style.display = sel.value === "__custom__" ? "flex" : "none";
+  }
+
+  function saveCustomDept(selectId, inputId, boxId) {
+    const val = document.getElementById(inputId).value.trim();
+    if (!val) return;
+    const cleanVal = val.toUpperCase();
+    ["s_department", "st_department"].forEach(id => {
+      const s = document.getElementById(id);
+      if (!s) return;
+      const opt = document.createElement("option");
+      opt.value = cleanVal;
+      opt.textContent = cleanVal + " - " + val;
+      s.insertBefore(opt, s.lastElementChild);
+    });
+    document.getElementById(selectId).value = cleanVal;
+    document.getElementById(boxId).style.display = "none";
+    document.getElementById(inputId).value = "";
+  }
+
+  function handleBatchChange(selectId, boxId) {
+    const sel = document.getElementById(selectId);
+    const box = document.getElementById(boxId);
+    box.style.display = sel.value === "__custom__" ? "flex" : "none";
+  }
+
+  function saveCustomBatch(selectId, inputId, boxId) {
+    const val = document.getElementById(inputId).value.trim();
+    if (!val) return;
+    ["s_batch", "st_batch"].forEach(id => {
+      const s = document.getElementById(id);
+      if (!s) return;
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
+      s.insertBefore(opt, s.lastElementChild);
+    });
+    document.getElementById(selectId).value = val;
+    document.getElementById(boxId).style.display = "none";
+    document.getElementById(inputId).value = "";
+  }
+
+  function toggleStaffFields() {
+    const role = document.getElementById("st_designation").value;
+    const batchGroup = document.getElementById("st_batch_group");
+    const deptGroup = document.getElementById("st_dept_group");
+
+    if (role === "incharge") {
+      batchGroup.style.display = "block";
+      deptGroup.style.display = "block";
+    } else if (role === "hod") {
+      batchGroup.style.display = "none";
+      deptGroup.style.display = "block";
+    } else {
+      batchGroup.style.display = "none";
+      deptGroup.style.display = "none";
+    }
+  }
+
+  // Add Student
+  document.getElementById("studentForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const errEl = document.getElementById("studentError");
+    const okEl = document.getElementById("studentSuccess");
+    errEl.classList.remove("show");
+    okEl.classList.remove("show");
+
+    const isHosteller = document.getElementById("s_isHosteller").value === "true";
+    const payload = {
+      regNo: document.getElementById("s_regNo").value.trim(),
+      name: document.getElementById("s_name").value.trim(),
+      department: document.getElementById("s_department").value.trim(),
+      year: document.getElementById("s_year").value,
+      batch: document.getElementById("s_batch").value,
+      isHosteller: isHosteller,
+      floor: isHosteller ? document.getElementById("s_floor").value : null,
+      room: isHosteller ? document.getElementById("s_room").value.trim() : null,
+      parentContact: document.getElementById("s_parentContact").value.trim(),
+      studentPhone: document.getElementById("s_studentPhone").value.trim(),
+      password: document.getElementById("s_password").value
+    };
+
+    if (!payload.regNo || !payload.name || !payload.password || !payload.parentContact || !payload.studentPhone) {
+      errEl.textContent = "Please fill in all required fields.";
+      errEl.classList.add("show");
+      return;
+    }
+
+    try {
+      const result = await adminAddStudent(payload);
+      if (!result.ok) {
+        errEl.textContent = result.error || "Failed to create student.";
+        errEl.classList.add("show");
+        return;
+      }
+      okEl.classList.add("show");
+      document.getElementById("studentForm").reset();
+      toggleHostelFields();
+      renderStudents();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.add("show");
+    }
+  });
+
+  // Add Staff
+  document.getElementById("staffForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const errEl = document.getElementById("staffError");
+    const okEl = document.getElementById("staffSuccess");
+    errEl.classList.remove("show");
+    okEl.classList.remove("show");
+
+    const designation = document.getElementById("st_designation").value;
+    const payload = {
+      staffId: document.getElementById("st_staffId").value.trim(),
+      name: document.getElementById("st_name").value.trim(),
+      designation: designation,
+      department: document.getElementById("st_department").value,
+      batch: designation === "incharge" ? document.getElementById("st_batch").value : null,
+      password: document.getElementById("st_password").value
+    };
+
+    if (!payload.staffId || !payload.name || !payload.password) {
+      errEl.textContent = "Please fill in all required fields.";
+      errEl.classList.add("show");
+      return;
+    }
+
+    try {
+      const result = await adminAddStaff(payload);
+      if (!result.ok) {
+        errEl.textContent = result.error || "Failed to create staff member.";
+        errEl.classList.add("show");
+        return;
+      }
+      okEl.classList.add("show");
+      document.getElementById("staffForm").reset();
+      toggleStaffFields();
+      renderStaff();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.add("show");
+    }
+  });
+
+  let cachedStudents = [];
+  let cachedStaff = [];
+
+  async function renderStudents() {
+    const body = document.getElementById("studentsTableBody");
+    try {
+      const students = await adminGetStudents();
+      cachedStudents = students || [];
+      if (!cachedStudents || cachedStudents.length === 0) {
+        body.innerHTML = `<tr class="empty-row"><td colspan="6">No students added yet.</td></tr>`;
+        return;
+      }
+      body.innerHTML = cachedStudents
+        .map(
+          s => `
+        <tr>
+          <td><strong>${escapeHtml(s.regNo)}</strong></td>
+          <td>${escapeHtml(s.name)}</td>
+          <td>${escapeHtml(s.department)} &bull; <strong>${escapeHtml(s.year || '')}</strong> &bull; Batch: ${escapeHtml(s.batch || '')}</td>
+          <td>${s.is_hosteller ? `🏢 ${escapeHtml(s.floor || s.hostel_block || '')} (Room ${escapeHtml(s.room || 'N/A')})` : '🎒 Day Scholar'}</td>
+          <td>
+            <strong>📱 ${escapeHtml(s.studentPhone || s.student_phone || 'N/A')}</strong><br/>
+            <span style="color:var(--ink-600);font-size:12px;">👨‍👩‍👦 ${escapeHtml(s.parentContact || 'N/A')}</span>
+          </td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="openEditStudent(${s.id})">✏️ Edit</button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteStudent(${s.id}, '${escapeHtml(s.name)}')">🗑️ Delete</button>
+            </div>
+          </td>
+        </tr>`
+        )
+        .join("");
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="6" style="color:red;">Error loading students: ${err.message}</td></tr>`;
+    }
+  }
+
+  // Student Edit / Delete functions
+  function openEditStudent(id) {
+    const s = cachedStudents.find(item => item.id == id);
+    if (!s) return;
+    document.getElementById("edit_s_id").value = s.id;
+    document.getElementById("edit_s_regNo").value = s.regNo;
+    document.getElementById("edit_s_name").value = s.name;
+    document.getElementById("edit_s_department").value = s.department || "Information Technology";
+    document.getElementById("edit_s_year").value = s.year || "1st Year";
+    document.getElementById("edit_s_batch").value = s.batch || "2022-2026";
+    document.getElementById("edit_s_category").value = s.is_hosteller ? "hosteller" : "dayscholar";
+    document.getElementById("edit_s_floor").value = s.floor || "Ground Floor";
+    document.getElementById("edit_s_room").value = s.room || "";
+    document.getElementById("edit_s_studentPhone").value = s.studentPhone || s.student_phone || "";
+    document.getElementById("edit_s_parentContact").value = s.parentContact || "";
+    document.getElementById("edit_s_password").value = "";
+    toggleEditHostelFields();
+    document.getElementById("editStudentModal").classList.add("show");
+  }
+
+  function closeEditStudent() {
+    document.getElementById("editStudentModal").classList.remove("show");
+  }
+
+  function toggleEditHostelFields() {
+    const isHostel = document.getElementById("edit_s_category").value === "hosteller";
+    document.getElementById("edit_s_hostelGroup").style.display = isHostel ? "grid" : "none";
+  }
+
+  async function submitEditStudent(e) {
+    e.preventDefault();
+    const id = document.getElementById("edit_s_id").value;
+    const btn = document.getElementById("btnSaveStudent");
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Saving...";
+
+    try {
+      const isHosteller = document.getElementById("edit_s_category").value === "hosteller";
+      const payload = {
+        name: document.getElementById("edit_s_name").value.trim(),
+        department: document.getElementById("edit_s_department").value,
+        year: document.getElementById("edit_s_year").value,
+        batch: document.getElementById("edit_s_batch").value,
+        isHosteller: isHosteller,
+        floor: isHosteller ? document.getElementById("edit_s_floor").value : null,
+        room: isHosteller ? document.getElementById("edit_s_room").value.trim() : null,
+        studentPhone: document.getElementById("edit_s_studentPhone").value.trim(),
+        parentContact: document.getElementById("edit_s_parentContact").value.trim(),
+        password: document.getElementById("edit_s_password").value.trim() || undefined
+      };
+
+      const res = await adminUpdateStudent(id, payload);
+      if (!res.success) {
+        alert("Failed to update student: " + (res.message || "Unknown error"));
+        return;
+      }
+      closeEditStudent();
+      await renderStudents();
+      alert("Student updated successfully!");
+    } catch (err) {
+      alert("Error updating student: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  }
+
+  async function handleDeleteStudent(id, name) {
+    if (!confirm(`Are you sure you want to permanently delete student "${name}"?\nAll associated leave requests will also be removed.`)) {
+      return;
+    }
+    try {
+      const res = await adminDeleteStudent(id);
+      if (!res.success) {
+        alert("Failed to delete student: " + (res.message || "Unknown error"));
+        return;
+      }
+      await renderStudents();
+      alert("Student deleted successfully!");
+    } catch (err) {
+      alert("Error deleting student: " + err.message);
+    }
+  }
+
+  async function renderStaff() {
+    const body = document.getElementById("staffTableBody");
+    try {
+      const staffList = await adminGetStaff();
+      cachedStaff = staffList || [];
+      if (!cachedStaff || cachedStaff.length === 0) {
+        body.innerHTML = `<tr class="empty-row"><td colspan="5">No staff members added yet.</td></tr>`;
+        return;
+      }
+      body.innerHTML = cachedStaff
+        .map(
+          s => `
+        <tr>
+          <td><strong>${escapeHtml(s.staffId)}</strong></td>
+          <td>${escapeHtml(s.name)}</td>
+          <td><span class="badge badge-pending">${STAGE_LABEL[s.designation] || s.designation}</span></td>
+          <td>${escapeHtml(s.department || '')} ${s.batch ? `&bull; Batch: <strong>${escapeHtml(s.batch)}</strong>` : ''}</td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="openEditStaff(${s.id})">✏️ Edit</button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteStaff(${s.id}, '${escapeHtml(s.name)}')">🗑️ Delete</button>
+            </div>
+          </td>
+        </tr>`
+        )
+        .join("");
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="5" style="color:red;">Error loading staff: ${err.message}</td></tr>`;
+    }
+  }
+
+  // Staff Edit / Delete functions
+  function openEditStaff(id) {
+    const st = cachedStaff.find(item => item.id == id);
+    if (!st) return;
+    document.getElementById("edit_st_id").value = st.id;
+    document.getElementById("edit_st_staffId").value = st.staffId;
+    document.getElementById("edit_st_name").value = st.name;
+    document.getElementById("edit_st_designation").value = st.designation || "incharge";
+    document.getElementById("edit_st_department").value = st.department || "Information Technology";
+    document.getElementById("edit_st_batch").value = st.batch || "2022-2026";
+    document.getElementById("edit_st_password").value = "";
+    toggleEditStaffFields();
+    document.getElementById("editStaffModal").classList.add("show");
+  }
+
+  function closeEditStaff() {
+    document.getElementById("editStaffModal").classList.remove("show");
+  }
+
+  function toggleEditStaffFields() {
+    const role = document.getElementById("edit_st_designation").value;
+    document.getElementById("edit_st_dept_group").style.display = (role === "warden") ? "none" : "block";
+    document.getElementById("edit_st_batch_group").style.display = (role === "incharge") ? "block" : "none";
+  }
+
+  async function submitEditStaff(e) {
+    e.preventDefault();
+    const id = document.getElementById("edit_st_id").value;
+    const btn = document.getElementById("btnSaveStaff");
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Saving...";
+
+    try {
+      const role = document.getElementById("edit_st_designation").value;
+      const payload = {
+        name: document.getElementById("edit_st_name").value.trim(),
+        designation: role,
+        department: role === "warden" ? "Hostel" : document.getElementById("edit_st_department").value,
+        batch: role === "incharge" ? document.getElementById("edit_st_batch").value : null,
+        password: document.getElementById("edit_st_password").value.trim() || undefined
+      };
+
+      const res = await adminUpdateStaff(id, payload);
+      if (!res.success) {
+        alert("Failed to update staff: " + (res.message || "Unknown error"));
+        return;
+      }
+      closeEditStaff();
+      await renderStaff();
+      alert("Staff member updated successfully!");
+    } catch (err) {
+      alert("Error updating staff: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  }
+
+  async function handleDeleteStaff(id, name) {
+    if (!confirm(`Are you sure you want to permanently delete staff member "${name}"?`)) {
+      return;
+    }
+    try {
+      const res = await adminDeleteStaff(id);
+      if (!res.success) {
+        alert("Failed to delete staff: " + (res.message || "Unknown error"));
+        return;
+      }
+      await renderStaff();
+      alert("Staff member deleted successfully!");
+    } catch (err) {
+      alert("Error deleting staff: " + err.message);
+    }
+  }
+
+  let allAdminRequests = [];
+
+  async function renderAllRequests() {
+    const body = document.getElementById("allRequestsTableBody");
+    try {
+      allAdminRequests = await adminGetAllRequests() || [];
+      applyAdminRequestFilters();
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="7" style="color:red;">Error loading requests: ${err.message}</td></tr>`;
+    }
+  }
+
+  function applyAdminRequestFilters() {
+    const body = document.getElementById("allRequestsTableBody");
+    const query = (document.getElementById("adminReqSearch")?.value || "").toLowerCase().trim();
+    const dept = document.getElementById("adminReqDeptFilter")?.value || "";
+    const batch = document.getElementById("adminReqBatchFilter")?.value || "";
+
+    const filtered = allAdminRequests.filter(r => {
+      const matchSearch = !query || 
+        (r.studentName || "").toLowerCase().includes(query) || 
+        (r.regNo || "").toLowerCase().includes(query) ||
+        (r.reason || "").toLowerCase().includes(query);
+      const matchDept = !dept || (r.department === dept);
+      const matchBatch = !batch || (r.batch === batch);
+      return matchSearch && matchDept && matchBatch;
+    });
+
+    if (filtered.length === 0) {
+      body.innerHTML = `<tr class="empty-row"><td colspan="7">No leave requests match your search criteria.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = filtered.map(r => `
+      <tr>
+        <td><strong>${escapeHtml(r.studentName)}</strong><br/><span style="color:var(--ink-600);font-size:12px;">${escapeHtml(r.regNo)} &bull; ${escapeHtml(r.year || '')}${r.studentPhone ? `<br/>📱 ${escapeHtml(r.studentPhone)}` : ''}</span></td>
+        <td>${escapeHtml(r.department)} &bull; ${escapeHtml(r.batch || '')}</td>
+        <td>${escapeHtml(r.leaveType)}</td>
+        <td>${fmtDateOnly(r.fromDate)} &ndash; ${fmtDateOnly(r.toDate)}</td>
+        <td>${statusBadge(r)}</td>
+        <td>${stageTrack(r)}</td>
+        <td>
+          <div style="display:flex; gap:6px;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="printRequest('${r.id}')">🖨️ Print Slip</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteRequest('${r.id}', '${escapeHtml(r.studentName)}')">🗑️ Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  async function handleDeleteRequest(id, studentName) {
+    if (!confirm(`Are you sure you want to delete leave request "${id}" for "${studentName}" from Admin records?\n\n(Note: This removes it from Admin view while safely preserving the records in HOD and Class Advisor profiles.)`)) {
+      return;
+    }
+    try {
+      const res = await adminDeleteRequest(id);
+      if (!res.success) {
+        alert("Failed to delete leave request: " + (res.message || "Unknown error"));
+        return;
+      }
+      await renderAllRequests();
+      alert("Leave request removed from Admin view (HOD and Advisor records safely retained).");
+    } catch (err) {
+      alert("Error deleting request: " + err.message);
+    }
+  }
+
+  async function refreshDashboard() {
+    const icon = document.querySelector("#sideRefreshBtn svg") || document.querySelector(".refresh-icon");
+    if (icon) icon.classList.add("spinning");
+    try {
+      const activeBtn = document.querySelector(".nav-link.active");
+      const view = activeBtn ? activeBtn.dataset.view : "students";
+      if (view === "students") {
+        await renderStudents();
+      } else if (view === "staff") {
+        await renderStaff();
+      } else if (view === "requests") {
+        await renderAllRequests();
+      }
+    } catch (err) {
+      console.warn("Refresh error:", err);
+    } finally {
+      setTimeout(() => { if (icon) icon.classList.remove("spinning"); }, 500);
+    }
+  }
+
+  // Auto refresh every 25 seconds & on window focus
+  setInterval(refreshDashboard, 25000);
+  window.addEventListener("focus", refreshDashboard);
+
+  toggleStaffFields();
+  renderStudents();
+</script>
+</body>
+</html>

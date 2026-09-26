@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Staff Dashboard &middot; Leave Request System</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="staff">
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="crest-sm">AEC</div>
+      <div class="brand-mark">Annapoorana<br/>Engineering College</div>
+    </div>
+    <div class="brand-sub">Student Leave Request System</div>
+
+    <!-- Left Sidebar Live Running Clock -->
+    <div class="sidebar-live-clock">
+      <div class="clock-date">📅 <span class="live-clock-date">-- --- ----</span></div>
+      <div class="clock-time">⏰ <span class="live-clock-time">--:--:--</span></div>
+    </div>
+
+    <button class="nav-link active" data-view="pending" type="button">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+      Pending Approvals
+    </button>
+    <button class="nav-link" data-view="history" type="button">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>
+      Decisions Made
+    </button>
+
+    <div class="sidebar-foot">
+      <button class="btn btn-refresh btn-sm btn-block" onclick="refreshDashboard()" id="sideRefreshBtn" title="Refresh pending requests and leave history">
+        <svg class="refresh-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        <span>Refresh</span>
+      </button>
+      <div class="sidebar-user"><strong id="sideStaffName">&mdash;</strong><span id="sideStaffRole">&mdash;</span></div>
+      <button class="btn btn-logout btn-sm btn-block" onclick="logout()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Log Out
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <section id="view-pending">
+      <div class="main-header">
+        <div>
+          <h1>Pending Approvals</h1>
+          <p id="pendingSub">Requests currently waiting on your decision.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Student</th><th>Type</th><th>Dates</th><th>Reason</th><th>Progress so far</th><th>Decision</th></tr>
+            </thead>
+            <tbody id="pendingTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-history" style="display:none;">
+      <div class="main-header">
+        <div>
+          <h1>Decisions Made &amp; Student Leave History</h1>
+          <p>Search students by Roll No or Name, filter by Academic Year or Batch, and view total leave counts.</p>
+        </div>
+      </div>
+      <div class="card">
+        <!-- Live Search & Year/Batch Filter Toolbar -->
+        <div class="history-toolbar">
+          <div class="search-box">
+            <input type="text" id="historySearch" placeholder="🔍 Search by Roll No. or Student Name..." oninput="applyHistoryFilters()" />
+          </div>
+          <div class="filter-group">
+            <select id="historyYearFilter" onchange="applyHistoryFilters()">
+              <option value="">🎓 All Academic Years</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+
+            <select id="historyBatchFilter" onchange="applyHistoryFilters()">
+              <option value="">🏷️ All Batches</option>
+              <option value="2022-2026">Batch 2022-2026</option>
+              <option value="2023-2027">Batch 2023-2027</option>
+              <option value="2024-2028">Batch 2024-2028</option>
+              <option value="2025-2029">Batch 2025-2029</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Student &amp; Leave Frequency</th><th>Type</th><th>Dates</th><th>Your Decision</th><th>Remarks</th><th>Current Status</th><th>Official Slip</th></tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Decision modal -->
+<div class="modal-backdrop" id="decisionModal">
+  <div class="modal">
+    <h3 id="modalTitle">Approve Request</h3>
+    <div class="field">
+      <label for="modalRemarks">Remarks <span id="remarksHint">(optional)</span></label>
+      <textarea id="modalRemarks" rows="3" placeholder="Add a note for the student / next approver"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="modalCancel" type="button">Cancel</button>
+      <button class="btn btn-sm" id="modalConfirm" type="button">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="print-sheet" id="printSheet"></div>
+
+<script src="script.js"></script>
+<script>
+  const session = requireRole("staff");
+  let pendingDecision = null; // { requestId, decision }
+
+  document.getElementById("sideStaffName").textContent = session.name;
+  document.getElementById("sideStaffRole").textContent = STAGE_LABEL[session.designation];
+  document.getElementById("pendingSub").textContent =
+    "Requests currently waiting on your decision as " + STAGE_LABEL[session.designation] + ".";
+
+  document.querySelectorAll(".nav-link[data-view]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-link[data-view]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      ["pending", "history"].forEach(v => {
+        document.getElementById("view-" + v).style.display = v === btn.dataset.view ? "block" : "none";
+      });
+      if (btn.dataset.view === "pending") renderPending();
+      if (btn.dataset.view === "history") renderHistory();
+    });
+  });
+
+  function progressSoFar(req) {
+    if (!req.approvals || req.approvals.length === 0) return "First stage &mdash; no prior approvals yet.";
+    return req.approvals
+      .map(a => `${STAGE_LABEL[a.stage] || a.stage}: ${a.decision === "approved" ? "Approved" : "Rejected"}`)
+      .join("<br/>");
+  }
+
+  async function renderPending() {
+    const body = document.getElementById("pendingTableBody");
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--ink-600);">Loading pending requests...</td></tr>`;
+    try {
+      const reqs = await getRequestsForStage(session.designation, session.id);
+      if (!reqs || reqs.length === 0) {
+        body.innerHTML = `<tr class="empty-row"><td colspan="6">No requests waiting on you right now.</td></tr>`;
+        return;
+      }
+      body.innerHTML = reqs
+        .map(
+          r => `
+        <tr>
+          <td>
+            <strong>${escapeHtml(r.studentName)}</strong><br/>
+            <span style="color:var(--ink-600);font-size:12px;">
+              ${escapeHtml(r.regNo)} &middot; ${escapeHtml(r.department)} &middot; Batch: <strong>${escapeHtml(r.batch || 'N/A')}</strong> &middot; ${r.isHosteller ? `Hosteller (Room ${escapeHtml(r.room || '-')})` : 'Day Scholar'}
+              ${r.studentPhone ? `<br/>📱 <strong>${escapeHtml(r.studentPhone)}</strong> &bull; 👨‍👩‍👦 ${escapeHtml(r.parentContact || 'N/A')}` : ''}
+            </span>
+          </td>
+          <td>${escapeHtml(r.leaveType)}</td>
+          <td>${fmtDateOnly(r.fromDate)} &ndash; ${fmtDateOnly(r.toDate)}</td>
+          <td style="max-width:220px;">${escapeHtml(r.reason)}</td>
+          <td style="font-size:12px;">${progressSoFar(r)}</td>
+          <td>
+            <div class="action-row">
+              <button class="btn btn-primary btn-sm" onclick="openDecision('${r.id}','approved')">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="openDecision('${r.id}','rejected')">Reject</button>
+            </div>
+          </td>
+        </tr>`
+        )
+        .join("");
+    } catch (err) {
+      body.innerHTML = `<tr class="empty-row"><td colspan="6" style="color:var(--danger);">Error loading requests: ${escapeHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  let allHistoryRecords = [];
+
+  async function renderHistory() {
+    const body = document.getElementById("historyTableBody");
+    body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--ink-600);">Loading history &amp; student leave records...</td></tr>`;
+    try {
+      allHistoryRecords = await getRequestHistoryForStage(session.designation, session.id || session.staffId);
+      window.allHistoryRecords = allHistoryRecords;
+      applyHistoryFilters();
+    } catch (err) {
+      body.innerHTML = `<tr class="empty-row"><td colspan="7" style="color:var(--danger);">Error loading history: ${escapeHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  function applyHistoryFilters() {
+    const body = document.getElementById("historyTableBody");
+    const query = (document.getElementById("historySearch")?.value || "").toLowerCase().trim();
+    const yearFilter = document.getElementById("historyYearFilter")?.value || "";
+    const batchFilter = document.getElementById("historyBatchFilter")?.value || "";
+
+    const filtered = allHistoryRecords.filter(r => {
+      const matchSearch = !query || 
+        (r.studentName || "").toLowerCase().includes(query) || 
+        (r.regNo || "").toLowerCase().includes(query) ||
+        (r.reason || "").toLowerCase().includes(query);
+      const studentYr = (r.year || r.studentYear || "");
+      const matchYear = !yearFilter || (studentYr === yearFilter);
+      const matchBatch = !batchFilter || (r.batch === batchFilter);
+      return matchSearch && matchYear && matchBatch;
+    });
+
+    if (filtered.length === 0) {
+      body.innerHTML = `<tr class="empty-row"><td colspan="7">No leave records match your search criteria.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = filtered.map(r => {
+      const mine = (r.approvals || []).find(a => a.stage === session.designation) || {};
+      const totalLeaves = r.totalLeavesCount || 1;
+      const approvedLeaves = r.approvedLeavesCount || 0;
+      return `
+        <tr>
+          <td>
+            <strong>${escapeHtml(r.studentName)}</strong>
+            <span class="badge-leave-count" title="Total leaves taken/applied by this student">
+              📌 ${totalLeaves} Leave${totalLeaves > 1 ? 's' : ''} Total (${approvedLeaves} Approved)
+            </span>
+            <br/>
+            <span style="color:var(--ink-600);font-size:12px;">
+              ${escapeHtml(r.regNo)} &middot; <strong>${escapeHtml(r.year || r.studentYear || '')}</strong> &middot; Batch: ${escapeHtml(r.batch || '')} &middot; ${r.is_hosteller ? `Hostel (Room ${escapeHtml(r.room || '-')})` : 'Day Scholar'}
+              ${r.studentPhone ? `<br/>📱 <strong>${escapeHtml(r.studentPhone)}</strong> &bull; 👨‍👩‍👦 ${escapeHtml(r.parentContact || 'N/A')}` : ''}
+            </span>
+          </td>
+          <td>${escapeHtml(r.leaveType)}</td>
+          <td>${fmtDateOnly(r.fromDate)} &ndash; ${fmtDateOnly(r.toDate)}</td>
+          <td>${mine.decision === "approved" ? '<span class="badge badge-approved">Approved</span>' : '<span class="badge badge-rejected">Rejected</span>'}</td>
+          <td class="remarks-note">${escapeHtml(mine.remarks) || "&mdash;"}</td>
+          <td>${statusBadge(r)}</td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-outline btn-sm" onclick="printRequest('${r.id}')">🖨️ Print Slip</button>
+              <button class="btn btn-danger btn-sm" onclick="handleStaffDeleteRequest('${r.id}', '${escapeHtml(r.studentName)}')">🗑️ Delete</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
+  }
+
+  async function handleStaffDeleteRequest(requestId, studentName) {
+    if (!confirm(`Are you sure you want to delete leave request "${requestId}" for student "${studentName}"?`)) {
+      return;
+    }
+    try {
+      const res = await staffDeleteRequest(requestId, session.id || session.staffId);
+      if (!res.success) {
+        alert("Failed to delete request: " + (res.message || "Unknown error"));
+        return;
+      }
+      alert("Leave request deleted successfully.");
+      await renderHistory();
+    } catch (err) {
+      alert("Error deleting request: " + err.message);
+    }
+  }
+
+  function openDecision(requestId, decision) {
+    pendingDecision = { requestId, decision };
+    document.getElementById("modalTitle").textContent =
+      decision === "approved" ? "Approve Request" : "Reject Request";
+    document.getElementById("remarksHint").textContent = decision === "approved" ? "(optional)" : "(recommended)";
+    document.getElementById("modalConfirm").textContent = decision === "approved" ? "Approve" : "Reject";
+    document.getElementById("modalConfirm").className =
+      "btn btn-sm " + (decision === "approved" ? "btn-primary" : "btn-danger");
+    document.getElementById("modalRemarks").value = "";
+    document.getElementById("decisionModal").classList.add("show");
+  }
+
+  document.getElementById("modalCancel").addEventListener("click", () => {
+    document.getElementById("decisionModal").classList.remove("show");
+    pendingDecision = null;
+  });
+
+  document.getElementById("modalConfirm").addEventListener("click", async () => {
+    if (!pendingDecision) return;
+    const btn = document.getElementById("modalConfirm");
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Processing...";
+    try {
+      const remarks = document.getElementById("modalRemarks").value.trim();
+      const res = await actOnRequest(pendingDecision.requestId, session, pendingDecision.decision, remarks);
+      if (!res || !res.success) {
+        throw new Error(res && res.message ? res.message : "Failed to record decision.");
+      }
+      document.getElementById("decisionModal").classList.remove("show");
+      pendingDecision = null;
+      await renderPending();
+    } catch (err) {
+      alert("Error saving decision: " + (err.message || err));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  });
+
+  async function refreshDashboard() {
+    const icon = document.querySelector("#sideRefreshBtn svg") || document.querySelector(".refresh-icon");
+    if (icon) icon.classList.add("spinning");
+    try {
+      const activeBtn = document.querySelector(".nav-link.active");
+      const view = activeBtn ? activeBtn.dataset.view : "pending";
+      if (view === "history") {
+        await renderHistory();
+      } else {
+        await renderPending();
+      }
+    } catch (err) {
+      console.warn("Refresh error:", err);
+    } finally {
+      setTimeout(() => { if (icon) icon.classList.remove("spinning"); }, 500);
+    }
+  }
+
+  // Auto refresh every 25 seconds & on window focus
+  setInterval(refreshDashboard, 25000);
+  window.addEventListener("focus", refreshDashboard);
+
+  renderPending();
+</script>
+</body>
+</html>

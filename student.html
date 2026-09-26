@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Student Dashboard &middot; Leave Request System</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="student">
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="crest-sm">AEC</div>
+      <div class="brand-mark">Annapoorana<br/>Engineering College</div>
+    </div>
+    <div class="brand-sub">Student Leave Request System</div>
+
+    <!-- Left Sidebar Live Running Clock -->
+    <div class="sidebar-live-clock">
+      <div class="clock-date">📅 <span class="live-clock-date">-- --- ----</span></div>
+      <div class="clock-time">⏰ <span class="live-clock-time">--:--:--</span></div>
+    </div>
+
+    <button class="nav-link active" data-view="apply" type="button">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg></span>
+      Apply for Leave
+    </button>
+    <button class="nav-link" data-view="requests" type="button">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14v18l-7-4-7 4z"/></svg></span>
+      My Requests
+    </button>
+    <button class="nav-link" data-view="history" type="button">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+      Leave History
+    </button>
+
+    <div class="sidebar-foot">
+      <button class="btn btn-refresh btn-sm btn-block" onclick="refreshDashboard()" id="sideRefreshBtn" title="Refresh dashboard data">
+        <svg class="refresh-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        <span>Refresh</span>
+      </button>
+      <div class="sidebar-user"><strong id="sideStudentName">&mdash;</strong><span id="sideStudentReg">&mdash;</span></div>
+      <button class="btn btn-logout btn-sm btn-block" onclick="logout()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Log Out
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- Apply view -->
+    <section id="view-apply">
+      <div class="main-header">
+        <div>
+          <h1>Apply for Leave</h1>
+          <p>Your request goes to your Class Incharge first, then HOD,if hostel student Hostel Warden.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="form-error" id="applyError"></div>
+        <div class="form-success" id="applySuccess">Request submitted. Track its progress under &ldquo;My Requests&rdquo;.</div>
+        <form id="applyForm">
+          <div class="grid-2">
+            <div class="field">
+              <label for="leaveType">Leave Type *</label>
+              <select id="leaveType">
+                <option value="Home Visit">Home Visit</option>
+                <option value="Medical">Medical</option>
+                <option value="Family Function">Family Function</option>
+                <option value="Emergency">Emergency</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="studentPhoneDisplay">Student Phone Number *</label>
+              <input type="text" id="studentPhoneDisplay" placeholder="Your 10-digit mobile number" required />
+            </div>
+            <div class="field">
+              <label for="fromDate">From Date *</label>
+              <input type="date" id="fromDate" required />
+            </div>
+            <div class="field">
+              <label for="toDate">To Date *</label>
+              <input type="date" id="toDate" required />
+            </div>
+            <div class="field" style="grid-column: span 2;">
+              <label for="parentContactDisplay">Parent Contact on File *</label>
+              <input type="text" id="parentContactDisplay" placeholder="Parent 10-digit mobile number" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="addressOnLeave">Address / Contact While on Leave</label>
+            <input type="text" id="addressOnLeave" placeholder="e.g. Home address, or a phone number where you can be reached" />
+          </div>
+          <div class="field">
+            <label for="reason">Reason for Leave</label>
+            <textarea id="reason" rows="4" placeholder="Explain the reason for your leave"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Requests view -->
+    <section id="view-requests" style="display:none;">
+      <div class="main-header">
+        <div>
+          <h1>My Requests</h1>
+          <p>Live status of leave requests still in progress or recently decided.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Applied</th><th>Type</th><th>Dates</th><th>Status</th><th>Progress</th><th></th></tr>
+            </thead>
+            <tbody id="requestsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- History view -->
+    <section id="view-history" style="display:none;">
+      <div class="main-header">
+        <div>
+          <h1>Leave History</h1>
+          <p>All leave requests you have ever submitted, including remarks from each stage.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Applied</th><th>Type</th><th>Dates</th><th>Reason</th><th>Final Status</th><th>Remarks</th><th>Official Slip</th></tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="print-sheet" id="printSheet"></div>
+
+<script src="script.js"></script>
+<script>
+  const session = requireRole("student");
+
+  function loadStudent() {
+    document.getElementById("sideStudentName").textContent = session.name;
+    const yrBatch = [session.year, session.batch ? `Batch: ${session.batch}` : ''].filter(Boolean).join(" &bull; ");
+    document.getElementById("sideStudentReg").innerHTML = `${escapeHtml(session.id)}` + 
+      (yrBatch ? `<br/><span style="font-size:11px;color:var(--ink-500);font-weight:normal;">${yrBatch}</span>` : '');
+    if (session.parentContact) {
+      document.getElementById("parentContactDisplay").value = session.parentContact;
+    }
+    if (session.studentPhone) {
+      document.getElementById("studentPhoneDisplay").value = session.studentPhone;
+    }
+  }
+
+  // Nav switching
+  document.querySelectorAll(".nav-link[data-view]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-link[data-view]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      ["apply", "requests", "history"].forEach(v => {
+        document.getElementById("view-" + v).style.display = v === btn.dataset.view ? "block" : "none";
+      });
+      if (btn.dataset.view === "requests") renderRequests();
+      if (btn.dataset.view === "history") renderHistory();
+    });
+  });
+
+  document.getElementById("applyForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const errEl = document.getElementById("applyError");
+    const okEl = document.getElementById("applySuccess");
+    errEl.classList.remove("show");
+    okEl.classList.remove("show");
+
+    const leaveType = document.getElementById("leaveType").value;
+    const studentPhone = document.getElementById("studentPhoneDisplay").value.trim();
+    const parentContact = document.getElementById("parentContactDisplay").value.trim();
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+    const addressOnLeave = document.getElementById("addressOnLeave").value.trim();
+    const reason = document.getElementById("reason").value.trim();
+
+    if (!fromDate || !toDate || !addressOnLeave || !reason || !studentPhone || !parentContact) {
+      errEl.textContent = "Please fill in every field before submitting.";
+      errEl.classList.add("show");
+      return;
+    }
+    if (toDate < fromDate) {
+      errEl.textContent = "The end date cannot be before the start date.";
+      errEl.classList.add("show");
+      return;
+    }
+
+    try {
+      const res = await submitLeaveRequest(session, { leaveType, fromDate, toDate, reason, addressOnLeave, studentPhone, parentContact });
+      if (res.success) {
+        okEl.classList.add("show");
+        e.target.reset();
+        loadStudent();
+      } else {
+        errEl.textContent = res.message || "Failed to submit leave.";
+        errEl.classList.add("show");
+      }
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.add("show");
+    }
+  });
+
+  async function renderRequests() {
+    const body = document.getElementById("requestsTableBody");
+    try {
+      const all = await getRequestsForStudent(session.id);
+      const reqs = all.filter(r => r.status === "pending" || isRecent(r));
+      if (!reqs || reqs.length === 0) {
+        body.innerHTML = `<tr class="empty-row"><td colspan="6">No leave requests yet. Use &ldquo;Apply for Leave&rdquo; to submit one.</td></tr>`;
+        return;
+      }
+      body.innerHTML = reqs
+        .map(
+          r => `
+        <tr>
+          <td>${fmtDate(r.appliedOn)}</td>
+          <td>${escapeHtml(r.leaveType)}</td>
+          <td>${fmtDateOnly(r.fromDate)} &ndash; ${fmtDateOnly(r.toDate)}</td>
+          <td>${statusBadge(r)}</td>
+          <td>${stageTrack(r)}</td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="printRequest('${r.id}')">🖨️ Print Slip</button>
+          </td>
+        </tr>`
+        )
+        .join("");
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="6" style="color:red;">Error loading requests: ${err.message}</td></tr>`;
+    }
+  }
+
+  function isRecent(r) {
+    const days = (Date.now() - new Date(r.appliedOn).getTime()) / 86400000;
+    return days <= 14;
+  }
+
+  async function renderHistory() {
+    const body = document.getElementById("historyTableBody");
+    try {
+      const reqs = await getRequestsForStudent(session.id);
+      if (!reqs || reqs.length === 0) {
+        body.innerHTML = `<tr class="empty-row"><td colspan="7">Nothing to show yet.</td></tr>`;
+        return;
+      }
+      body.innerHTML = reqs
+        .map(r => {
+          const lastRemark = r.approvals && r.approvals.length ? r.approvals[r.approvals.length - 1] : null;
+          return `
+        <tr>
+          <td>${fmtDate(r.appliedOn)}</td>
+          <td>${escapeHtml(r.leaveType)}</td>
+          <td>${fmtDateOnly(r.fromDate)} &ndash; ${fmtDateOnly(r.toDate)}</td>
+          <td>${escapeHtml(r.reason)}</td>
+          <td>${statusBadge(r)}</td>
+          <td>${lastRemark && lastRemark.remarks ? `<div class="remarks-note">${escapeHtml(lastRemark.remarks)} <em>&mdash; ${STAGE_LABEL[lastRemark.stage] || lastRemark.stage}</em></div>` : "&mdash;"}</td>
+          <td><button class="btn btn-outline btn-sm" onclick="printRequest('${r.id}')">🖨️ Print Slip</button></td>
+        </tr>`;
+        })
+        .join("");
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="7" style="color:red;">Error loading history: ${err.message}</td></tr>`;
+    }
+  }
+
+  async function refreshDashboard() {
+    const icon = document.querySelector("#sideRefreshBtn svg") || document.querySelector(".refresh-icon");
+    if (icon) icon.classList.add("spinning");
+    try {
+      await loadStudent();
+      const activeBtn = document.querySelector(".nav-link.active");
+      const view = activeBtn ? activeBtn.dataset.view : "apply";
+      if (view === "requests") await renderRequests();
+      else if (view === "history") await renderHistory();
+    } catch (err) {
+      console.warn("Refresh error:", err);
+    } finally {
+      setTimeout(() => { if (icon) icon.classList.remove("spinning"); }, 500);
+    }
+  }
+
+  // Auto refresh every 25 seconds & on window focus
+  setInterval(refreshDashboard, 25000);
+  window.addEventListener("focus", refreshDashboard);
+
+  loadStudent();
+</script>
+</body>
+</html>
