@@ -18,6 +18,7 @@ async function autoMigrate() {
                 year VARCHAR(50) NULL,
                 roll_number VARCHAR(50) NULL,
                 is_hosteller BOOLEAN DEFAULT TRUE,
+                hostel_block VARCHAR(50) NULL,
                 room_no VARCHAR(50) NULL,
                 room_number VARCHAR(50) NULL,
                 parent_contact VARCHAR(50) NULL,
@@ -34,8 +35,15 @@ async function autoMigrate() {
         const userColsToAdd = [
             ['identifier', 'VARCHAR(100) NULL'],
             ['batch', 'VARCHAR(50) NULL'],
+            ['year', 'VARCHAR(50) NULL'],
+            ['roll_number', 'VARCHAR(50) NULL'],
+            ['is_hosteller', 'BOOLEAN DEFAULT TRUE'],
+            ['hostel_block', 'VARCHAR(50) NULL DEFAULT NULL'],
             ['room_no', 'VARCHAR(50) NULL'],
-            ['parent_contact', 'VARCHAR(50) NULL']
+            ['room_number', 'VARCHAR(50) NULL'],
+            ['parent_contact', 'VARCHAR(50) NULL'],
+            ['parent_phone', 'VARCHAR(50) NULL'],
+            ['student_phone', 'VARCHAR(50) NULL']
         ];
 
         for (const [col, colType] of userColsToAdd) {
