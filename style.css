@@ -110,9 +110,9 @@ button{font-family:inherit;}
 .login-heraldic .college-sub{
   font-size:13px;color:#c9c4b4;margin:0;letter-spacing:.02em;
 }
-/* .login-heraldic .dept-line{
+.login-heraldic .dept-line{
   font-size:13px;color:var(--gold-500);margin:14px 0 0;font-weight:600;
-}  */
+} 
 .login-heraldic .system-name{
   font-size:15px;color:#dcd8c9;margin:2px 0 0;
 }
@@ -1441,11 +1441,11 @@ body[data-page="login"] {
   color: #64748b;
   border-radius: 4px;
 }
-.Madeby{
+/* .Madeby{
   margin-left: 100px;
   color: #FBE523;
 }
 .dep{
   margin-left: 56px;
   color: #3E94E0;
-}
+} */
