@@ -34,6 +34,27 @@ function formatApprovals(row) {
     return approvals;
 }
 
+function safeDateStr(val) {
+    if (!val) return '';
+    if (typeof val === 'string') return val.split('T')[0];
+    try {
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+    } catch (e) {
+        return '';
+    }
+}
+
+function safeIsoStr(val) {
+    if (!val) return new Date().toISOString();
+    try {
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+    } catch (e) {
+        return new Date().toISOString();
+    }
+}
+
 function formatRequest(row) {
     return {
         id: row.req_code || ('LR-' + row.id),
@@ -48,11 +69,11 @@ function formatRequest(row) {
         parentContact: row.parent_contact,
         studentPhone: row.student_phone || '',
         leaveType: row.leave_type,
-        fromDate: row.from_date ? new Date(row.from_date).toISOString().split('T')[0] : '',
-        toDate: row.to_date ? new Date(row.to_date).toISOString().split('T')[0] : '',
+        fromDate: safeDateStr(row.from_date || row.start_date),
+        toDate: safeDateStr(row.to_date || row.end_date),
         reason: row.reason,
-        addressOnLeave: row.address_on_leave,
-        appliedOn: row.applied_on ? new Date(row.applied_on).toISOString() : new Date().toISOString(),
+        addressOnLeave: row.address_on_leave || row.destination || '',
+        appliedOn: safeIsoStr(row.applied_on || row.created_at),
         status: row.status,
         currentStage: row.current_stage,
         totalLeavesCount: Number(row.total_leaves_count || 1),
@@ -139,9 +160,9 @@ exports.getRequestsForStudent = async (req, res) => {
 
         const [rows] = await db.query(
             `SELECT * FROM leave_requests 
-             WHERE reg_no = ? OR student_id IN (SELECT id FROM users WHERE identifier = ? OR roll_number = ?)
-             ORDER BY COALESCE(applied_on, created_at) DESC`,
-            [regNo.trim(), regNo.trim(), regNo.trim()]
+             WHERE reg_no = ? OR student_id IN (SELECT id FROM users WHERE identifier = ? OR roll_number = ? OR email = ?)
+             ORDER BY id DESC`,
+            [regNo.trim(), regNo.trim(), regNo.trim(), regNo.trim()]
         );
 
         return res.json({ success: true, requests: rows.map(formatRequest) });
@@ -161,7 +182,7 @@ exports.getRequestsForStage = async (req, res) => {
 
         const normalizedStage = (designation === 'advisor' || designation === 'incharge') ? 'incharge' : designation.trim();
 
-        let query = `SELECT * FROM leave_requests WHERE status = 'pending' AND (current_stage = ? OR (current_stage = 'advisor' AND ? = 'incharge'))`;
+        let query = `SELECT * FROM leave_requests WHERE (status = 'pending' OR status = 'PENDING') AND (current_stage = ? OR (current_stage = 'advisor' AND ? = 'incharge'))`;
         let params = [normalizedStage, normalizedStage];
 
         // If Class Incharge: filter by incharge's department and batch!
@@ -173,13 +194,13 @@ exports.getRequestsForStage = async (req, res) => {
             );
             if (staffRows.length > 0) {
                 const staff = staffRows[0];
-                if (staff.department) {
-                    query += ` AND department = ?`;
-                    params.push(staff.department);
+                if (staff.department && staff.department.trim()) {
+                    query += ` AND (LOWER(TRIM(department)) = LOWER(TRIM(?)) OR (LOWER(TRIM(department)) IN ('it', 'information technology') AND LOWER(TRIM(?)) IN ('it', 'information technology')))`;
+                    params.push(staff.department.trim(), staff.department.trim());
                 }
-                if (staff.batch) {
-                    query += ` AND (batch = ? OR year = ?)`;
-                    params.push(staff.batch, staff.batch);
+                if (staff.batch && staff.batch.trim()) {
+                    query += ` AND (LOWER(TRIM(batch)) = LOWER(TRIM(?)) OR LOWER(TRIM(year)) = LOWER(TRIM(?)))`;
+                    params.push(staff.batch.trim(), staff.batch.trim());
                 }
             }
         }
@@ -190,18 +211,18 @@ exports.getRequestsForStage = async (req, res) => {
                 `SELECT department FROM users WHERE role = 'hod' AND (identifier = ? OR email = ? OR id = ?)`,
                 [staffId.toString().trim(), staffId.toString().trim(), staffId.toString().trim()]
             );
-            if (hodRows.length > 0 && hodRows[0].department) {
-                query += ` AND department = ?`;
-                params.push(hodRows[0].department);
+            if (hodRows.length > 0 && hodRows[0].department && hodRows[0].department.trim()) {
+                query += ` AND (LOWER(TRIM(department)) = LOWER(TRIM(?)) OR (LOWER(TRIM(department)) IN ('it', 'information technology') AND LOWER(TRIM(?)) IN ('it', 'information technology')))`;
+                params.push(hodRows[0].department.trim(), hodRows[0].department.trim());
             }
         }
 
         // If Warden: only hostellers
         if (normalizedStage === 'warden') {
-            query += ` AND is_hosteller = 1`;
+            query += ` AND (is_hosteller = 1 OR is_hosteller = TRUE)`;
         }
 
-        query += ` ORDER BY COALESCE(applied_on, created_at) ASC`;
+        query += ` ORDER BY id ASC`;
 
         const [rows] = await db.query(query, params);
         return res.json({ success: true, requests: rows.map(formatRequest) });
@@ -254,12 +275,12 @@ exports.getRequestHistoryForStage = async (req, res) => {
                         params.push(staff.batch, staff.batch);
                     }
                 } else if (normalizedStage === 'warden') {
-                    query += ` AND lr.is_hosteller = 1`;
+                    query += ` AND (lr.is_hosteller = 1 OR lr.is_hosteller = TRUE)`;
                 }
             }
         }
 
-        query += ` ORDER BY COALESCE(lr.applied_on, lr.created_at) DESC LIMIT 100`;
+        query += ` ORDER BY lr.id DESC LIMIT 100`;
 
         const [rows] = await db.query(query, params);
         return res.json({ success: true, requests: rows.map(formatRequest) });
@@ -337,18 +358,18 @@ exports.actOnRequest = async (req, res) => {
             }
         }
 
-        // Update corresponding stage fields
+        // Update corresponding stage fields safely
         let updateQuery = `UPDATE leave_requests SET status = ?, current_stage = ? `;
         let updateParams = [nextStatus, nextStage];
 
         if (staffRole === 'incharge') {
-            updateQuery += `, incharge_id = ?, incharge_name = ?, incharge_decision = ?, incharge_remarks = ?, incharge_date = NOW(), advisor_id = ?, advisor_remarks = ?, advisor_action_at = NOW() `;
-            updateParams.push(staff.id, staff.name, decision, remarks || null, staff.id, remarks || null);
+            updateQuery += `, incharge_id = ?, incharge_name = ?, incharge_decision = ?, incharge_remarks = ?, incharge_date = NOW() `;
+            updateParams.push(staff.id, staff.name, decision, remarks || null);
         } else if (staffRole === 'hod') {
-            updateQuery += `, hod_id = ?, hod_name = ?, hod_decision = ?, hod_remarks = ?, hod_date = NOW(), hod_action_at = NOW() `;
+            updateQuery += `, hod_id = ?, hod_name = ?, hod_decision = ?, hod_remarks = ?, hod_date = NOW() `;
             updateParams.push(staff.id, staff.name, decision, remarks || null);
         } else if (staffRole === 'warden') {
-            updateQuery += `, warden_id = ?, warden_name = ?, warden_decision = ?, warden_remarks = ?, warden_date = NOW(), warden_action_at = NOW() `;
+            updateQuery += `, warden_id = ?, warden_name = ?, warden_decision = ?, warden_remarks = ?, warden_date = NOW() `;
             updateParams.push(staff.id, staff.name, decision, remarks || null);
         }
 

@@ -140,7 +140,7 @@ exports.getStaff = async (req, res) => {
 exports.getAllRequests = async (req, res) => {
     try {
         const [rows] = await db.query(
-            `SELECT * FROM leave_requests WHERE COALESCE(deleted_by_admin, 0) = 0 ORDER BY COALESCE(applied_on, created_at) DESC`
+            `SELECT * FROM leave_requests WHERE COALESCE(deleted_by_admin, 0) = 0 ORDER BY id DESC`
         );
         const requests = rows.map(row => ({
             id: row.req_code,

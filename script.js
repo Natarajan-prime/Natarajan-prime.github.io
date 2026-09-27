@@ -347,7 +347,8 @@ async function submitLeaveRequest(session, payload) {
 
 async function getRequestsForStudent(regNo) {
   try {
-    const res = await fetch(`${API_BASE}/leave/student/${regNo}`);
+    if (!regNo) return [];
+    const res = await fetch(`${API_BASE}/leave/student/${encodeURIComponent(regNo)}`);
     const data = await res.json();
     return data.requests || [];
   } catch (err) {
@@ -358,9 +359,9 @@ async function getRequestsForStudent(regNo) {
 
 async function getRequestsForStage(designation, staffId) {
   try {
-    const url = staffId
-      ? `${API_BASE}/leave/stage?designation=${designation}&staffId=${staffId}`
-      : `${API_BASE}/leave/stage?designation=${designation}`;
+    if (!designation) return [];
+    let url = `${API_BASE}/leave/stage?designation=${encodeURIComponent(designation)}`;
+    if (staffId) url += `&staffId=${encodeURIComponent(staffId)}`;
     const res = await fetch(url);
     const data = await res.json();
     return data.requests || [];
@@ -372,7 +373,8 @@ async function getRequestsForStage(designation, staffId) {
 
 async function getRequestHistoryForStage(designation, staffId) {
   try {
-    let url = `${API_BASE}/leave/history?designation=${designation}`;
+    if (!designation) return [];
+    let url = `${API_BASE}/leave/history?designation=${encodeURIComponent(designation)}`;
     if (staffId) url += `&staffId=${encodeURIComponent(staffId)}`;
     const res = await fetch(url);
     const data = await res.json();
