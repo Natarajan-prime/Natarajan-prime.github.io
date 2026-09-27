@@ -732,29 +732,36 @@ async function printRequest(requestId) {
 }
 
 // -------------------------------------------------------------
-// LIVE RUNNING DATE & TIME CLOCK (FOR LEFT SIDEBAR)
+// LIVE RUNNING DATE & TIME CLOCK (FOR SIDEBAR & LOGIN)
 // -------------------------------------------------------------
+let _liveClockInterval = null;
 function startLiveClock() {
   function tick() {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-IN', {
-      weekday: 'short',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-    const timeStr = now.toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
-    });
-    
-    document.querySelectorAll('.live-clock-date').forEach(el => el.textContent = dateStr);
-    document.querySelectorAll('.live-clock-time').forEach(el => el.textContent = timeStr);
+    try {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+      const timeStr = now.toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+      
+      document.querySelectorAll('.live-clock-date').forEach(el => { el.textContent = dateStr; });
+      document.querySelectorAll('.live-clock-time').forEach(el => { el.textContent = timeStr; });
+    } catch (e) {
+      console.warn("Live clock tick error:", e);
+    }
   }
   tick();
-  setInterval(tick, 1000);
+  if (!_liveClockInterval) {
+    _liveClockInterval = setInterval(tick, 1000);
+  }
 }
 
 if (document.readyState === 'loading') {

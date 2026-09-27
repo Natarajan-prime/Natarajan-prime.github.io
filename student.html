@@ -11,10 +11,28 @@
 
 <div class="app-shell">
   <aside class="sidebar">
-    <div class="brand">
-      <div class="crest-sm">AEC</div>
-      <div class="brand-mark">Annapoorana<br/>Engineering College</div>
+    <div class="sidebar-top-bar">
+      <div class="brand">
+        <div class="crest-sm">AEC</div>
+        <div class="brand-text">
+          <div class="brand-mark">Annapoorana</div>
+          <div class="brand-college">Engineering College</div>
+        </div>
+      </div>
+
+      <div class="mobile-actions">
+        <div class="mobile-clock">
+          <span class="live-clock-time">--:--:--</span>
+        </div>
+        <button class="btn btn-refresh btn-sm" onclick="refreshDashboard()" id="mobileRefreshBtn" title="Refresh">
+          <svg class="refresh-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        </button>
+        <button class="btn btn-logout btn-sm" onclick="logout()" title="Logout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
     </div>
+
     <div class="brand-sub">Student Leave Request System</div>
 
     <!-- Left Sidebar Live Running Clock -->
@@ -23,18 +41,20 @@
       <div class="clock-time">⏰ <span class="live-clock-time">--:--:--</span></div>
     </div>
 
-    <button class="nav-link active" data-view="apply" type="button">
-      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg></span>
-      Apply for Leave
-    </button>
-    <button class="nav-link" data-view="requests" type="button">
-      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14v18l-7-4-7 4z"/></svg></span>
-      My Requests
-    </button>
-    <button class="nav-link" data-view="history" type="button">
-      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
-      Leave History
-    </button>
+    <nav class="sidebar-nav">
+      <button class="nav-link active" data-view="apply" type="button">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg></span>
+        <span>Apply for Leave</span>
+      </button>
+      <button class="nav-link" data-view="requests" type="button">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14v18l-7-4-7 4z"/></svg></span>
+        <span>My Requests</span>
+      </button>
+      <button class="nav-link" data-view="history" type="button">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+        <span>Leave History</span>
+      </button>
+    </nav>
 
     <div class="sidebar-foot">
       <button class="btn btn-refresh btn-sm btn-block" onclick="refreshDashboard()" id="sideRefreshBtn" title="Refresh dashboard data">
@@ -44,7 +64,7 @@
       <div class="sidebar-user"><strong id="sideStudentName">&mdash;</strong><span id="sideStudentReg">&mdash;</span></div>
       <button class="btn btn-logout btn-sm btn-block" onclick="logout()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        Log Out
+        <span>Log Out</span>
       </button>
     </div>
   </aside>
@@ -117,7 +137,7 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Applied</th><th>Type</th><th>Dates</th><th>Status</th><th>Progress</th><th></th></tr>
+              <tr><th>Applied</th><th>Type</th><th>Dates</th><th>Reason</th><th>Status</th><th>Progress</th><th>Official Slip</th></tr>
             </thead>
             <tbody id="requestsTableBody"></tbody>
           </table>
@@ -228,7 +248,7 @@
       const all = await getRequestsForStudent(session.id);
       const reqs = all.filter(r => r.status === "pending" || isRecent(r));
       if (!reqs || reqs.length === 0) {
-        body.innerHTML = `<tr class="empty-row"><td colspan="6">No leave requests yet. Use &ldquo;Apply for Leave&rdquo; to submit one.</td></tr>`;
+        body.innerHTML = `<tr class="empty-row"><td colspan="7">No leave requests yet. Use &ldquo;Apply for Leave&rdquo; to submit one.</td></tr>`;
         return;
       }
       body.innerHTML = reqs
@@ -238,6 +258,7 @@
           <td>${fmtDate(r.appliedOn)}</td>
           <td>${escapeHtml(r.leaveType)}</td>
           <td>${fmtDateOnly(r.fromDate)} &ndash; ${fmtDateOnly(r.toDate)}</td>
+          <td class="cell-reason"><div class="reason-box" title="${escapeHtml(r.reason || '')}">${escapeHtml(r.reason || '&mdash;')}</div></td>
           <td>${statusBadge(r)}</td>
           <td>${stageTrack(r)}</td>
           <td>
@@ -247,7 +268,7 @@
         )
         .join("");
     } catch (err) {
-      body.innerHTML = `<tr><td colspan="6" style="color:red;">Error loading requests: ${err.message}</td></tr>`;
+      body.innerHTML = `<tr><td colspan="7" style="color:red;">Error loading requests: ${err.message}</td></tr>`;
     }
   }
 
@@ -272,9 +293,9 @@
           <td>${fmtDate(r.appliedOn)}</td>
           <td>${escapeHtml(r.leaveType)}</td>
           <td>${fmtDateOnly(r.fromDate)} &ndash; ${fmtDateOnly(r.toDate)}</td>
-          <td>${escapeHtml(r.reason)}</td>
+          <td class="cell-reason"><div class="reason-box" title="${escapeHtml(r.reason || '')}">${escapeHtml(r.reason || '&mdash;')}</div></td>
           <td>${statusBadge(r)}</td>
-          <td>${lastRemark && lastRemark.remarks ? `<div class="remarks-note">${escapeHtml(lastRemark.remarks)} <em>&mdash; ${STAGE_LABEL[lastRemark.stage] || lastRemark.stage}</em></div>` : "&mdash;"}</td>
+          <td class="cell-remarks">${lastRemark && lastRemark.remarks ? `<div class="remarks-box" title="${escapeHtml(lastRemark.remarks)}">${escapeHtml(lastRemark.remarks)} <div class="remarks-author">&mdash; ${STAGE_LABEL[lastRemark.stage] || lastRemark.stage}</div></div>` : "&mdash;"}</td>
           <td><button class="btn btn-outline btn-sm" onclick="printRequest('${r.id}')">🖨️ Print Slip</button></td>
         </tr>`;
         })
@@ -304,6 +325,7 @@
   setInterval(refreshDashboard, 25000);
   window.addEventListener("focus", refreshDashboard);
 
+  startLiveClock();
   loadStudent();
 </script>
 </body>

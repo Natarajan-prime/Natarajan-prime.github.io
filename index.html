@@ -70,6 +70,14 @@
 
     <!-- Login Form Side -->
     <div class="login-form-side">
+      <!-- Live Running Date & Time Clock Widget (Mobile & Desktop) -->
+      <div class="login-clock-badge">
+        <span class="live-pulse-dot"></span>
+        <span class="clock-date-text">📅 <span class="live-clock-date">Loading date...</span></span>
+        <span class="clock-divider">|</span>
+        <span class="clock-time-text">⏰ <span class="live-clock-time">--:--:--</span></span>
+      </div>
+
       <div class="role-tabs" role="tablist">
         <button class="role-tab active" data-role="student" type="button">Student</button>
         <button class="role-tab" data-role="staff" type="button">Staff</button>
@@ -138,6 +146,7 @@
 
 <script src="script.js"></script>
 <script>
+  startLiveClock();
   let activeRole = "student";
 
   // Tab switching
