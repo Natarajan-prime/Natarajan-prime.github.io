@@ -4,9 +4,11 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : 'root',
     database: process.env.DB_NAME || 'college_leave_db',
+    ssl: process.env.DB_HOST && process.env.DB_HOST !== 'localhost' ? { rejectUnauthorized: true } : false,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
