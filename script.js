@@ -656,28 +656,28 @@ function buildPrintSheet(req) {
           <tbody>${rows}</tbody>
         </table>
 
-        <div class="slip-section-title">4. AUTHORIZATIONS &amp; GATE CLEARANCE</div>
-        <div class="slip-signatures-container">
-          // <div class="slip-sign-box">
-          //   <div class="slip-sign-line"></div>
-          //   <div class="slip-sign-label">Signature of Student</div>
-          //   <div class="slip-sign-sub">Date: ${fmtDateOnly(req.appliedOn)}</div>
-          // </div>
-          // <div class="slip-sign-box">
-          //   <div class="slip-sign-line"></div>
-          //   <div class="slip-sign-label">Class Incharge / HOD Signature</div>
-          //   <div class="slip-sign-sub">Annapoorana Engineering College</div>
-          // </div>
-          <div class="slip-stamp-card ${isApproved ? 'stamp-cleared' : 'stamp-pending'}">
-            <div class="stamp-seal-badge">AEC CAMPUS GATE CLEARANCE</div>
-            <div class="stamp-status-bold">${isApproved ? 'VALID FOR EXIT' : 'GATE CLEARANCE PENDING'}</div>
-            <div class="stamp-timing-row">
-              <span>Out: ___________</span>
-              <span>In: ___________</span>
-            </div>
-            <div class="stamp-guard-line">Security Officer: _________________</div>
-          </div>
-        </div>
+        // <div class="slip-section-title">4. AUTHORIZATIONS &amp; GATE CLEARANCE</div>
+        // <div class="slip-signatures-container">
+        //   // <div class="slip-sign-box">
+        //   //   <div class="slip-sign-line"></div>
+        //   //   <div class="slip-sign-label">Signature of Student</div>
+        //   //   <div class="slip-sign-sub">Date: ${fmtDateOnly(req.appliedOn)}</div>
+        //   // </div>
+        //   // <div class="slip-sign-box">
+        //   //   <div class="slip-sign-line"></div>
+        //   //   <div class="slip-sign-label">Class Incharge / HOD Signature</div>
+        //   //   <div class="slip-sign-sub">Annapoorana Engineering College</div>
+        //   // </div>
+        //   <div class="slip-stamp-card ${isApproved ? 'stamp-cleared' : 'stamp-pending'}">
+        //     <div class="stamp-seal-badge">AEC CAMPUS GATE CLEARANCE</div>
+        //     <div class="stamp-status-bold">${isApproved ? 'VALID FOR EXIT' : 'GATE CLEARANCE PENDING'}</div>
+        //     <div class="stamp-timing-row">
+        //       <span>Out: ___________</span>
+        //       <span>In: ___________</span>
+        //     </div>
+        //     <div class="stamp-guard-line">Security Officer: _________________</div>
+        //   </div>
+        // </div>
 
         <div class="slip-bottom-notice">
           <p><strong>Notice:</strong> 1. This leave pass must be presented and verified at the college security gate upon departure and re-entry. 2. Hostellers must strictly report back to the hostel before curfew hours. 3. Tampering, editing, or falsifying this official document is punishable under college regulations.</p>
