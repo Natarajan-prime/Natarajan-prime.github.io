@@ -658,16 +658,16 @@ function buildPrintSheet(req) {
 
         <div class="slip-section-title">4. AUTHORIZATIONS &amp; GATE CLEARANCE</div>
         <div class="slip-signatures-container">
-          <div class="slip-sign-box">
-            <div class="slip-sign-line"></div>
-            <div class="slip-sign-label">Signature of Student</div>
-            <div class="slip-sign-sub">Date: ${fmtDateOnly(req.appliedOn)}</div>
-          </div>
-          <div class="slip-sign-box">
-            <div class="slip-sign-line"></div>
-            <div class="slip-sign-label">Class Incharge / HOD Signature</div>
-            <div class="slip-sign-sub">Annapoorana Engineering College</div>
-          </div>
+          // <div class="slip-sign-box">
+          //   <div class="slip-sign-line"></div>
+          //   <div class="slip-sign-label">Signature of Student</div>
+          //   <div class="slip-sign-sub">Date: ${fmtDateOnly(req.appliedOn)}</div>
+          // </div>
+          // <div class="slip-sign-box">
+          //   <div class="slip-sign-line"></div>
+          //   <div class="slip-sign-label">Class Incharge / HOD Signature</div>
+          //   <div class="slip-sign-sub">Annapoorana Engineering College</div>
+          // </div>
           <div class="slip-stamp-card ${isApproved ? 'stamp-cleared' : 'stamp-pending'}">
             <div class="stamp-seal-badge">AEC CAMPUS GATE CLEARANCE</div>
             <div class="stamp-status-bold">${isApproved ? 'VALID FOR EXIT' : 'GATE CLEARANCE PENDING'}</div>
