@@ -76,9 +76,9 @@ exports.addStaff = async (req, res) => {
             return res.status(400).json({ success: false, message: 'A staff account with this ID already exists.' });
         }
 
-        const staffEmail = staffId.includes('@') 
-            ? staffId.trim() 
-            : `${staffId.trim().toLowerCase()}@college.edu`;
+        const staffEmail = (req.body.email && req.body.email.trim()) 
+            ? req.body.email.trim().toLowerCase() 
+            : (staffId.includes('@') ? staffId.trim() : `${staffId.trim().toLowerCase()}@college.edu`);
 
         await db.query(
             `INSERT INTO users (identifier, email, name, password, role, department, batch, year)
@@ -106,7 +106,7 @@ exports.addStaff = async (req, res) => {
 exports.getStudents = async (req, res) => {
     try {
         const [rows] = await db.query(
-            `SELECT id, COALESCE(identifier, roll_number) as regNo, name, department, 
+            `SELECT id, COALESCE(identifier, roll_number) as regNo, name, email, password, department, 
                     COALESCE(year, '1st Year') as year,
                     COALESCE(batch, year) as batch, is_hosteller, 
                     hostel_block as floor,
@@ -125,7 +125,7 @@ exports.getStudents = async (req, res) => {
 exports.getStaff = async (req, res) => {
     try {
         const [rows] = await db.query(
-            `SELECT id, COALESCE(identifier, email) as staffId, name, 
+            `SELECT id, COALESCE(identifier, email) as staffId, name, email, password, 
                     CASE WHEN role = 'advisor' THEN 'incharge' ELSE role END as designation, 
                     department, COALESCE(batch, year) as batch 
              FROM users WHERE role IN ('incharge', 'advisor', 'hod', 'warden') ORDER BY created_at DESC`
@@ -190,7 +190,7 @@ exports.deleteStudent = async (req, res) => {
 exports.updateStudent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, department, year, batch, isHosteller, floor, room, parentContact, studentPhone, password } = req.body;
+        const { name, email, department, year, batch, isHosteller, floor, room, parentContact, studentPhone, password } = req.body;
 
         if (!name || !batch) {
             return res.status(400).json({ success: false, message: 'Student name and batch are required.' });
@@ -211,6 +211,11 @@ exports.updateStudent = async (req, res) => {
             parentContact ? parentContact.trim() : null,
             studentPhone ? studentPhone.trim() : null
         ];
+
+        if (email && email.trim()) {
+            query += `, email = ?`;
+            params.push(email.trim().toLowerCase());
+        }
 
         if (password && password.trim()) {
             query += `, password = ?`;
@@ -269,7 +274,7 @@ exports.deleteStaff = async (req, res) => {
 exports.updateStaff = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, department, designation, batch, password } = req.body;
+        const { name, email, department, designation, batch, password } = req.body;
 
         if (!name || !designation) {
             return res.status(400).json({ success: false, message: 'Name and designation are required.' });
@@ -283,6 +288,11 @@ exports.updateStaff = async (req, res) => {
             designation === 'incharge' && batch ? batch.trim() : null,
             designation === 'incharge' && batch ? batch.trim() : null
         ];
+
+        if (email && email.trim()) {
+            query += `, email = ?`;
+            params.push(email.trim().toLowerCase());
+        }
 
         if (password && password.trim()) {
             query += `, password = ?`;

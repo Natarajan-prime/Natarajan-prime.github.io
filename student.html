@@ -321,10 +321,7 @@
     }
   }
 
-  // Auto refresh every 25 seconds & on window focus
-  setInterval(refreshDashboard,6000000000000000);
-  window.addEventListener("focus", refreshDashboard);
-
+  // Auto refresh disabled per user requirement (manual refresh button remains active)
   startLiveClock();
   loadStudent();
 </script>

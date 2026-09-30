@@ -92,6 +92,10 @@
               <label for="s_name">Full Name *</label>
               <input type="text" id="s_name" placeholder="Student name" required />
             </div>
+            <div class="field">
+              <label for="s_email">Registered Gmail / Email *</label>
+              <input type="email" id="s_email" placeholder="student@gmail.com" required />
+            </div>
 
             <!-- Department with dynamic add option -->
             <div class="field">
@@ -193,7 +197,7 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Reg. No.</th><th>Name</th><th>Dept / Year / Batch</th><th>Category / Room</th><th>Contact Numbers</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Reg. No.</th><th>Name</th><th>Gmail / Email</th><th>Dept / Year / Batch</th><th>Category / Room</th><th>Contact Numbers</th><th>Actions</th></tr></thead>
             <tbody id="studentsTableBody"></tbody>
           </table>
         </div>
@@ -220,6 +224,10 @@
             <div class="field">
               <label for="st_name">Full Name *</label>
               <input type="text" id="st_name" placeholder="Staff name with initial" required />
+            </div>
+            <div class="field">
+              <label for="st_email">Staff Gmail / Email *</label>
+              <input type="email" id="st_email" placeholder="faculty@gmail.com" required />
             </div>
             <div class="field">
               <label for="st_designation">Role in Approval Chain *</label>
@@ -275,7 +283,7 @@
         <h2>Existing Staff Members</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Staff ID</th><th>Name</th><th>Role</th><th>Dept / Assigned Batch</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Staff ID</th><th>Name</th><th>Gmail / Email</th><th>Role</th><th>Dept / Assigned Batch</th><th>Actions</th></tr></thead>
             <tbody id="staffTableBody"></tbody>
           </table>
         </div>
@@ -349,6 +357,10 @@
           <input type="text" id="edit_s_name" required />
         </div>
         <div class="field">
+          <label for="edit_s_email">Student Gmail / Email *</label>
+          <input type="email" id="edit_s_email" required />
+        </div>
+        <div class="field">
           <label for="edit_s_department">Department *</label>
           <select id="edit_s_department">
             <option value="Information Technology">Information Technology</option>
@@ -418,8 +430,8 @@
         </div>
       </div>
       <div class="field" style="margin-top:6px;">
-        <label for="edit_s_password">Reset Password (Optional)</label>
-        <input type="password" id="edit_s_password" placeholder="Leave blank to keep existing" />
+        <label for="edit_s_password">🔑 Change Password (Optional)</label>
+        <input type="password" id="edit_s_password" placeholder="Enter new password to change, or leave blank to keep current" />
       </div>
 
       <div class="modal-actions" style="margin-top:16px;">
@@ -444,6 +456,10 @@
         <div class="field">
           <label for="edit_st_name">Staff Full Name *</label>
           <input type="text" id="edit_st_name" required />
+        </div>
+        <div class="field">
+          <label for="edit_st_email">Staff Gmail / Email *</label>
+          <input type="email" id="edit_st_email" required />
         </div>
         <div class="field">
           <label for="edit_st_designation">Role in Approval Chain *</label>
@@ -478,8 +494,8 @@
           </select>
         </div>
         <div class="field">
-          <label for="edit_st_password">Reset Password (Optional)</label>
-          <input type="password" id="edit_st_password" placeholder="Leave blank to keep existing" />
+          <label for="edit_st_password">🔑 Change Password (Optional)</label>
+          <input type="password" id="edit_st_password" placeholder="Enter new password to change, or leave blank to keep current" />
         </div>
       </div>
 
@@ -590,6 +606,7 @@
     const payload = {
       regNo: document.getElementById("s_regNo").value.trim(),
       name: document.getElementById("s_name").value.trim(),
+      email: document.getElementById("s_email").value.trim(),
       department: document.getElementById("s_department").value.trim(),
       year: document.getElementById("s_year").value,
       batch: document.getElementById("s_batch").value,
@@ -601,8 +618,8 @@
       password: document.getElementById("s_password").value
     };
 
-    if (!payload.regNo || !payload.name || !payload.password || !payload.parentContact || !payload.studentPhone) {
-      errEl.textContent = "Please fill in all required fields.";
+    if (!payload.regNo || !payload.name || !payload.email || !payload.password || !payload.parentContact || !payload.studentPhone) {
+      errEl.textContent = "Please fill in all required fields including Gmail.";
       errEl.classList.add("show");
       return;
     }
@@ -636,14 +653,15 @@
     const payload = {
       staffId: document.getElementById("st_staffId").value.trim(),
       name: document.getElementById("st_name").value.trim(),
+      email: document.getElementById("st_email").value.trim(),
       designation: designation,
       department: document.getElementById("st_department").value,
       batch: designation === "incharge" ? document.getElementById("st_batch").value : null,
       password: document.getElementById("st_password").value
     };
 
-    if (!payload.staffId || !payload.name || !payload.password) {
-      errEl.textContent = "Please fill in all required fields.";
+    if (!payload.staffId || !payload.name || !payload.email || !payload.password) {
+      errEl.textContent = "Please fill in all required fields including Gmail.";
       errEl.classList.add("show");
       return;
     }
@@ -674,7 +692,7 @@
       const students = await adminGetStudents();
       cachedStudents = students || [];
       if (!cachedStudents || cachedStudents.length === 0) {
-        body.innerHTML = `<tr class="empty-row"><td colspan="6">No students added yet.</td></tr>`;
+        body.innerHTML = `<tr class="empty-row"><td colspan="7">No students added yet.</td></tr>`;
         return;
       }
       body.innerHTML = cachedStudents
@@ -683,6 +701,7 @@
         <tr>
           <td><strong>${escapeHtml(s.regNo)}</strong></td>
           <td>${escapeHtml(s.name)}</td>
+          <td><span style="font-size:12px; color:var(--ink-700);">📧 ${escapeHtml(s.email || '-')}</span></td>
           <td>${escapeHtml(s.department)} &bull; <strong>${escapeHtml(s.year || '')}</strong> &bull; Batch: ${escapeHtml(s.batch || '')}</td>
           <td>${s.is_hosteller ? `🏢 ${escapeHtml(s.floor || s.hostel_block || '')} (Room ${escapeHtml(s.room || 'N/A')})` : '🎒 Day Scholar'}</td>
           <td>
@@ -699,7 +718,7 @@
         )
         .join("");
     } catch (err) {
-      body.innerHTML = `<tr><td colspan="6" style="color:red;">Error loading students: ${err.message}</td></tr>`;
+      body.innerHTML = `<tr><td colspan="7" style="color:red;">Error loading students: ${err.message}</td></tr>`;
     }
   }
 
@@ -710,6 +729,7 @@
     document.getElementById("edit_s_id").value = s.id;
     document.getElementById("edit_s_regNo").value = s.regNo;
     document.getElementById("edit_s_name").value = s.name;
+    document.getElementById("edit_s_email").value = s.email || "";
     document.getElementById("edit_s_department").value = s.department || "Information Technology";
     document.getElementById("edit_s_year").value = s.year || "1st Year";
     document.getElementById("edit_s_batch").value = s.batch || "2022-2026";
@@ -744,6 +764,7 @@
       const isHosteller = document.getElementById("edit_s_category").value === "hosteller";
       const payload = {
         name: document.getElementById("edit_s_name").value.trim(),
+        email: document.getElementById("edit_s_email").value.trim(),
         department: document.getElementById("edit_s_department").value,
         year: document.getElementById("edit_s_year").value,
         batch: document.getElementById("edit_s_batch").value,
@@ -794,7 +815,7 @@
       const staffList = await adminGetStaff();
       cachedStaff = staffList || [];
       if (!cachedStaff || cachedStaff.length === 0) {
-        body.innerHTML = `<tr class="empty-row"><td colspan="5">No staff members added yet.</td></tr>`;
+        body.innerHTML = `<tr class="empty-row"><td colspan="6">No staff members added yet.</td></tr>`;
         return;
       }
       body.innerHTML = cachedStaff
@@ -803,6 +824,7 @@
         <tr>
           <td><strong>${escapeHtml(s.staffId)}</strong></td>
           <td>${escapeHtml(s.name)}</td>
+          <td><span style="font-size:12px; color:var(--ink-700);">📧 ${escapeHtml(s.email || '-')}</span></td>
           <td><span class="badge badge-pending">${STAGE_LABEL[s.designation] || s.designation}</span></td>
           <td>${escapeHtml(s.department || '')} ${s.batch ? `&bull; Batch: <strong>${escapeHtml(s.batch)}</strong>` : ''}</td>
           <td>
@@ -815,7 +837,7 @@
         )
         .join("");
     } catch (err) {
-      body.innerHTML = `<tr><td colspan="5" style="color:red;">Error loading staff: ${err.message}</td></tr>`;
+      body.innerHTML = `<tr><td colspan="6" style="color:red;">Error loading staff: ${err.message}</td></tr>`;
     }
   }
 
@@ -826,6 +848,7 @@
     document.getElementById("edit_st_id").value = st.id;
     document.getElementById("edit_st_staffId").value = st.staffId;
     document.getElementById("edit_st_name").value = st.name;
+    document.getElementById("edit_st_email").value = st.email || "";
     document.getElementById("edit_st_designation").value = st.designation || "incharge";
     document.getElementById("edit_st_department").value = st.department || "Information Technology";
     document.getElementById("edit_st_batch").value = st.batch || "2022-2026";
@@ -856,6 +879,7 @@
       const role = document.getElementById("edit_st_designation").value;
       const payload = {
         name: document.getElementById("edit_st_name").value.trim(),
+        email: document.getElementById("edit_st_email").value.trim(),
         designation: role,
         department: role === "warden" ? "Hostel" : document.getElementById("edit_st_department").value,
         batch: role === "incharge" ? document.getElementById("edit_st_batch").value : null,
@@ -984,10 +1008,7 @@
     }
   }
 
-  // Auto refresh every 25 seconds & on window focus
-  setInterval(refreshDashboard,60000000000000000000);
-  window.addEventListener("focus", refreshDashboard);
-
+  // Auto refresh disabled per user requirement (manual refresh button remains active)
   startLiveClock();
   toggleStaffFields();
   renderStudents();

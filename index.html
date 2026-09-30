@@ -68,7 +68,7 @@
       <p class="hostel-note">Batch-wise leave management system for students, class incharge, HOD, and hostel warden.</p>
     </div>
 
-    <!-- Login Form Side -->
+    <!-- Login / Registration Form Side -->
     <div class="login-form-side">
       <!-- Live Running Date & Time Clock Widget (Mobile & Desktop) -->
       <div class="login-clock-badge">
@@ -78,80 +78,356 @@
         <span class="clock-time-text">⏰ <span class="live-clock-time">--:--:--</span></span>
       </div>
 
-      <div class="role-tabs" role="tablist">
-        <button class="role-tab active" data-role="student" type="button">Student</button>
-        <button class="role-tab" data-role="staff" type="button">Staff</button>
-        <button class="role-tab" data-role="admin" type="button">Admin</button>
+      <!-- Auth Mode Switch: Log In vs Sign Up -->
+      <div class="auth-mode-switch" role="tablist">
+        <button class="auth-mode-btn active" id="modeLoginBtn" type="button">🔑 Log In</button>
+        <button class="auth-mode-btn" id="modeSignupBtn" type="button">📝 Create Account (Sign Up)</button>
       </div>
 
-      <div class="form-error" id="loginError"></div>
-
-      <form id="loginForm">
-
-        <!-- Student fields -->
-        <div class="role-fields" data-role-fields="student">
-          <div class="field">
-            <label for="studentRegNo">Register Number</label>
-            <input type="text" id="studentRegNo" placeholder="e.g. 610225205031" autocomplete="username" />
-          </div>
-          <div class="field">
-            <label for="studentPassword">Password</label>
-            <input type="password" id="studentPassword" placeholder="Enter your password" autocomplete="current-password" />
-          </div>
+      <!-- ==============================================
+           1. LOG IN SECTION
+           ============================================== -->
+      <div id="loginSection">
+        <div class="role-tabs" role="tablist">
+          <button class="role-tab active" data-role="student" type="button">Student</button>
+          <button class="role-tab" data-role="staff" type="button">Staff</button>
+          <button class="role-tab" data-role="admin" type="button">Admin</button>
         </div>
 
-        <!-- Staff fields -->
-        <div class="role-fields" data-role-fields="staff" style="display:none;">
+        <div class="form-error" id="loginError"></div>
+        <div class="form-success" id="loginSuccess"></div>
+
+        <form id="loginForm">
+          <!-- Student fields -->
+          <div class="role-fields" data-role-fields="student">
+            <div class="field">
+              <label for="studentRegNo">Register Number</label>
+              <input type="text" id="studentRegNo" placeholder="e.g. 610225205031" autocomplete="username" />
+            </div>
+            <div class="field">
+              <label for="studentPassword">Password</label>
+              <input type="password" id="studentPassword" placeholder="Enter your password" autocomplete="current-password" />
+            </div>
+          </div>
+
+          <!-- Staff fields -->
+          <div class="role-fields" data-role-fields="staff" style="display:none;">
+            <div class="field">
+              <label for="staffDesignation">Your Role</label>
+              <select id="staffDesignation">
+                <option value="incharge">Class Incharge (Batch-Wise)</option>
+                <option value="hod">Head of Department (HOD)</option>
+                <option value="warden">Hostel Warden</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="staffId">Staff ID</label>
+              <input type="text" id="staffId" placeholder="e.g. STF-INC01" autocomplete="username" />
+            </div>
+            <div class="field">
+              <label for="staffPassword">Password</label>
+              <input type="password" id="staffPassword" placeholder="Enter your password" autocomplete="current-password" />
+            </div>
+          </div>
+
+          <!-- Admin fields -->
+          <div class="role-fields" data-role-fields="admin" style="display:none;">
+            <div class="field">
+              <label for="adminUsername">Admin Username</label>
+              <input type="text" id="adminUsername" placeholder="admin" autocomplete="username" />
+            </div>
+            <div class="field">
+              <label for="adminPassword">Password</label>
+              <input type="password" id="adminPassword" placeholder="Enter password" autocomplete="current-password" />
+            </div>
+          </div>
+
+          <!-- Forgot Password Trigger -->
+          <div style="display:flex; justify-content:flex-end; margin-top:-6px; margin-bottom:14px;">
+            <a href="javascript:void(0)" id="openForgotBtn" style="color:var(--navy-700); font-weight:700; font-size:12.5px; text-decoration:none;">🔑 Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
+        </form>
+
+        <div style="margin-top:16px; text-align:center; font-size:13px; color:var(--ink-700);">
+          Don't have an account? <a href="javascript:void(0)" id="switchSignupLink" style="color:#2563eb; font-weight:700; text-decoration:none;">Create an Account / Sign Up &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ==============================================
+           2. SIGN UP / REGISTER SECTION
+           ============================================== -->
+      <div id="signupSection" style="display:none;">
+        <div class="role-tabs" role="tablist">
+          <button class="role-tab active" data-signup-role="student" type="button">Student Sign Up</button>
+          <button class="role-tab" data-signup-role="staff" type="button">Staff Sign Up</button>
+        </div>
+
+        <div class="form-error" id="signupError"></div>
+        <div class="form-success" id="signupSuccess"></div>
+
+        <!-- Student Self-Registration Form -->
+        <form id="studentSignupForm">
+          <div class="grid-2">
+            <div class="field">
+              <label for="su_studentRegNo">Register Number *</label>
+              <input type="text" id="su_studentRegNo" placeholder="e.g. 610225205031" required />
+            </div>
+            <div class="field">
+              <label for="su_studentName">Student Full Name *</label>
+              <input type="text" id="su_studentName" placeholder="Full name with initials" required />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="su_studentEmail">Registered Gmail / Email *</label>
+              <input type="email" id="su_studentEmail" placeholder="student@gmail.com" required />
+            </div>
+            <div class="field">
+              <label for="su_studentPassword">Set Password *</label>
+              <input type="password" id="su_studentPassword" placeholder="Minimum 4 characters" required />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="su_studentDepartment">Department *</label>
+              <select id="su_studentDepartment">
+                <option value="Information Technology">Information Technology</option>
+                <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                <option value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</option>
+                <option value="Automobile Engineering">Automobile Engineering</option>
+                <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering (EEE)</option>
+                <option value="Biomedical Engineering">Biomedical Engineering (BME)</option>
+                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                <option value="Civil Engineering">Civil Engineering</option>
+                <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="su_studentYear">Academic Year *</label>
+              <select id="su_studentYear">
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year" selected>2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="su_studentBatch">Batch *</label>
+              <select id="su_studentBatch">
+                <option value="2022-2026">2022-2026</option>
+                <option value="2023-2027">2023-2027</option>
+                <option value="2024-2028" selected>2024-2028</option>
+                <option value="2025-2029">2025-2029</option>
+                <option value="2026-2030">2026-2030</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="su_studentCategory">Residence Category *</label>
+              <select id="su_studentCategory" onchange="toggleSignupHostelFields()">
+                <option value="false" selected>🎒 Day Scholar</option>
+                <option value="true">🏢 Hostel Resident</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dynamic Hostel Fields -->
+          <div id="su_hostelFieldsWrapper" style="display:none;" class="grid-2">
+            <div class="field">
+              <label for="su_floor">Hostel Floor / Block *</label>
+              <select id="su_floor">
+                <option value="Ground Floor">Ground Floor</option>
+                <option value="1st Floor">1st Floor</option>
+                <option value="2nd Floor">2nd Floor</option>
+                <option value="3rd Floor">3rd Floor</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="su_room">Hostel Room Number *</label>
+              <input type="text" id="su_room" placeholder="e.g. 108" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="su_studentPhone">Student Mobile Number *</label>
+              <input type="text" id="su_studentPhone" placeholder="10-digit mobile number" required />
+            </div>
+            <div class="field">
+              <label for="su_parentContact">Parent Contact Number *</label>
+              <input type="text" id="su_parentContact" placeholder="10-digit parent number" required />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="btnStudentSignup">Register Student Account</button>
+        </form>
+
+        <!-- Staff Self-Registration Form -->
+        <form id="staffSignupForm" style="display:none;">
+          <div class="grid-2">
+            <div class="field">
+              <label for="su_staffId">Staff ID *</label>
+              <input type="text" id="su_staffId" placeholder="e.g. STF-INC02" required />
+            </div>
+            <div class="field">
+              <label for="su_staffName">Staff Full Name *</label>
+              <input type="text" id="su_staffName" placeholder="Full name with initials" required />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="su_staffEmail">Staff Gmail / Email *</label>
+              <input type="email" id="su_staffEmail" placeholder="faculty@gmail.com" required />
+            </div>
+            <div class="field">
+              <label for="su_staffPassword">Set Password *</label>
+              <input type="password" id="su_staffPassword" placeholder="Minimum 4 characters" required />
+            </div>
+          </div>
+
           <div class="field">
-            <label for="staffDesignation">Your Role</label>
-            <select id="staffDesignation">
+            <label for="su_staffDesignation">Role in Approval Chain *</label>
+            <select id="su_staffDesignation" onchange="toggleSignupStaffFields()">
               <option value="incharge">Class Incharge (Batch-Wise)</option>
               <option value="hod">Head of Department (HOD)</option>
               <option value="warden">Hostel Warden</option>
             </select>
           </div>
-          <div class="field">
-            <label for="staffId">Staff ID</label>
-            <input type="text" id="staffId" placeholder="e.g. STF-INC01" autocomplete="username" />
+
+          <div class="grid-2">
+            <div class="field" id="su_deptGroup">
+              <label for="su_staffDepartment">Department</label>
+              <select id="su_staffDepartment">
+                <option value="Information Technology">Information Technology</option>
+                <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                <option value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</option>
+                <option value="Automobile Engineering">Automobile Engineering</option>
+                <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering (EEE)</option>
+                <option value="Biomedical Engineering">Biomedical Engineering (BME)</option>
+                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                <option value="Civil Engineering">Civil Engineering</option>
+                <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+              </select>
+            </div>
+            <div class="field" id="su_batchGroup">
+              <label for="su_staffBatch">Assigned Batch (For Incharge)</label>
+              <select id="su_staffBatch">
+                <option value="2022-2026">2022-2026</option>
+                <option value="2023-2027">2023-2027</option>
+                <option value="2024-2028" selected>2024-2028</option>
+                <option value="2025-2029">2025-2029</option>
+                <option value="2026-2030">2026-2030</option>
+              </select>
+            </div>
           </div>
-          <div class="field">
-            <label for="staffPassword">Password</label>
-            <input type="password" id="staffPassword" placeholder="Enter your password" autocomplete="current-password" />
-          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="btnStaffSignup">Register Staff Account</button>
+        </form>
+
+        <div style="margin-top:16px; text-align:center; font-size:13px; color:var(--ink-700);">
+          Already have an account? <a href="javascript:void(0)" id="switchLoginLink" style="color:#2563eb; font-weight:700; text-decoration:none;">Log In here &rarr;</a>
         </div>
+      </div>
 
-        <!-- Admin fields -->
-        <div class="role-fields" data-role-fields="admin" style="display:none;">
-          <div class="field">
-            <label for="adminUsername">Admin Username</label>
-            <input type="text" id="adminUsername" placeholder="admin" autocomplete="username" />
-          </div>
-          <div class="field">
-            <label for="adminPassword">Password</label>
-            <input type="password" id="adminPassword" placeholder="Enter password" autocomplete="current-password" />
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
-      </form>
-
-   
     </div>
 
   </div>
 </div>
 
-    
+<!-- ==============================================
+     3. FORGOT PASSWORD MODAL
+     ============================================== -->
+<div class="modal-backdrop" id="forgotPasswordModal">
+  <div class="modal" style="max-width:480px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="margin:0; font-size:18px; color:var(--navy-900);">🔑 Reset Forgotten Password</h3>
+      <button type="button" onclick="closeForgotModal()" style="background:none; border:none; font-size:22px; cursor:pointer; color:#64748b; line-height:1;">&times;</button>
+    </div>
+    <p style="font-size:13px; color:var(--ink-600); margin:0 0 16px 0;">
+      Verify your account identity using your registered ID number and registered Gmail address.
+    </p>
+
+    <div class="role-tabs" style="margin-bottom:14px;">
+      <button class="role-tab active" id="forgotRoleStudentBtn" type="button">Student</button>
+      <button class="role-tab" id="forgotRoleStaffBtn" type="button">Staff Member</button>
+    </div>
+
+    <div class="form-error" id="forgotError"></div>
+    <div class="form-success" id="forgotSuccess"></div>
+
+    <form id="forgotForm">
+      <div class="field">
+        <label id="forgotIdLabel" for="forgotIdentifier">Register Number *</label>
+        <input type="text" id="forgotIdentifier" placeholder="e.g. 610225205031" required />
+      </div>
+      <div class="field">
+        <label for="forgotEmail">Registered Gmail Address *</label>
+        <input type="email" id="forgotEmail" placeholder="e.g. yourname@gmail.com" required />
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="forgotNewPassword">New Password *</label>
+          <input type="password" id="forgotNewPassword" placeholder="Min. 4 characters" required />
+        </div>
+        <div class="field">
+          <label for="forgotConfirmPassword">Confirm Password *</label>
+          <input type="password" id="forgotConfirmPassword" placeholder="Confirm password" required />
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:16px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeForgotModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm" id="btnForgotSubmit">Update Password</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script src="script.js"></script>
 <script>
   startLiveClock();
   let activeRole = "student";
+  let activeSignupRole = "student";
+  let forgotRole = "student";
 
-  // Tab switching
-  document.querySelectorAll(".role-tab").forEach(tab => {
+  // --- Auth Mode Switcher (Log In vs Sign Up) ---
+  const modeLoginBtn = document.getElementById("modeLoginBtn");
+  const modeSignupBtn = document.getElementById("modeSignupBtn");
+  const loginSection = document.getElementById("loginSection");
+  const signupSection = document.getElementById("signupSection");
+
+  function switchToLogin() {
+    modeLoginBtn.classList.add("active");
+    modeSignupBtn.classList.remove("active");
+    loginSection.style.display = "block";
+    signupSection.style.display = "none";
+    hideError();
+  }
+
+  function switchToSignup() {
+    modeSignupBtn.classList.add("active");
+    modeLoginBtn.classList.remove("active");
+    signupSection.style.display = "block";
+    loginSection.style.display = "none";
+    hideError();
+  }
+
+  modeLoginBtn.addEventListener("click", switchToLogin);
+  modeSignupBtn.addEventListener("click", switchToSignup);
+  document.getElementById("switchSignupLink").addEventListener("click", switchToSignup);
+  document.getElementById("switchLoginLink").addEventListener("click", switchToLogin);
+
+  // --- Login Tab Switching ---
+  document.querySelectorAll("#loginSection .role-tab").forEach(tab => {
     tab.addEventListener("click", () => {
-      document.querySelectorAll(".role-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll("#loginSection .role-tab").forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
       activeRole = tab.dataset.role;
       document.querySelectorAll(".role-fields").forEach(f => {
@@ -161,18 +437,159 @@
     });
   });
 
-  function hideError() {
-    const el = document.getElementById("loginError");
-    el.classList.remove("show");
-    el.textContent = "";
-  }
-  function showError(msg) {
-    const el = document.getElementById("loginError");
-    el.textContent = msg;
-    el.classList.add("show");
+  // --- Sign Up Tab Switching ---
+  document.querySelectorAll("#signupSection .role-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll("#signupSection .role-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      activeSignupRole = tab.dataset.signupRole;
+      document.getElementById("studentSignupForm").style.display = activeSignupRole === "student" ? "block" : "none";
+      document.getElementById("staffSignupForm").style.display = activeSignupRole === "staff" ? "block" : "none";
+      hideError();
+    });
+  });
+
+  function toggleSignupHostelFields() {
+    const isHostel = document.getElementById("su_studentCategory").value === "true";
+    document.getElementById("su_hostelFieldsWrapper").style.display = isHostel ? "grid" : "none";
   }
 
-  // Form Submit connected to real API
+  function toggleSignupStaffFields() {
+    const des = document.getElementById("su_staffDesignation").value;
+    document.getElementById("su_deptGroup").style.display = (des === "warden") ? "none" : "block";
+    document.getElementById("su_batchGroup").style.display = (des === "incharge") ? "block" : "none";
+  }
+
+  function hideError() {
+    const lErr = document.getElementById("loginError");
+    lErr.classList.remove("show"); lErr.textContent = "";
+    const lOk = document.getElementById("loginSuccess");
+    lOk.classList.remove("show"); lOk.textContent = "";
+    const sErr = document.getElementById("signupError");
+    sErr.classList.remove("show"); sErr.textContent = "";
+    const sOk = document.getElementById("signupSuccess");
+    sOk.classList.remove("show"); sOk.textContent = "";
+    const fErr = document.getElementById("forgotError");
+    fErr.classList.remove("show"); fErr.textContent = "";
+    const fOk = document.getElementById("forgotSuccess");
+    fOk.classList.remove("show"); fOk.textContent = "";
+  }
+
+  function showLoginError(msg) {
+    const el = document.getElementById("loginError");
+    el.textContent = msg; el.classList.add("show");
+  }
+  function showLoginSuccess(msg) {
+    const el = document.getElementById("loginSuccess");
+    el.textContent = msg; el.classList.add("show");
+  }
+  function showSignupError(msg) {
+    const el = document.getElementById("signupError");
+    el.textContent = msg; el.classList.add("show");
+  }
+  function showSignupSuccess(msg) {
+    const el = document.getElementById("signupSuccess");
+    el.textContent = msg; el.classList.add("show");
+  }
+  function showForgotError(msg) {
+    const el = document.getElementById("forgotError");
+    el.textContent = msg; el.classList.add("show");
+  }
+  function showForgotSuccess(msg) {
+    const el = document.getElementById("forgotSuccess");
+    el.textContent = msg; el.classList.add("show");
+  }
+
+  // --- Student Self-Registration Submit ---
+  document.getElementById("studentSignupForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    hideError();
+    const btn = document.getElementById("btnStudentSignup");
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Creating Account...";
+
+    const isHosteller = document.getElementById("su_studentCategory").value === "true";
+    const payload = {
+      regNo: document.getElementById("su_studentRegNo").value.trim(),
+      name: document.getElementById("su_studentName").value.trim(),
+      email: document.getElementById("su_studentEmail").value.trim(),
+      password: document.getElementById("su_studentPassword").value,
+      department: document.getElementById("su_studentDepartment").value,
+      year: document.getElementById("su_studentYear").value,
+      batch: document.getElementById("su_studentBatch").value,
+      isHosteller: isHosteller,
+      floor: isHosteller ? document.getElementById("su_floor").value : null,
+      room: isHosteller ? document.getElementById("su_room").value.trim() : null,
+      studentPhone: document.getElementById("su_studentPhone").value.trim(),
+      parentContact: document.getElementById("su_parentContact").value.trim()
+    };
+
+    try {
+      const res = await registerStudent(payload);
+      if (res.ok) {
+        document.getElementById("studentSignupForm").reset();
+        toggleSignupHostelFields();
+        switchToLogin();
+        // Set tab to student and populate regNo
+        document.querySelector('#loginSection .role-tab[data-role="student"]').click();
+        document.getElementById("studentRegNo").value = payload.regNo;
+        document.getElementById("studentPassword").focus();
+        showLoginSuccess("Registration successful! You can now log in with your credentials.");
+      } else {
+        showSignupError(res.error || "Student registration failed.");
+      }
+    } catch (err) {
+      showSignupError("Connection error: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  });
+
+  // --- Staff Self-Registration Submit ---
+  document.getElementById("staffSignupForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    hideError();
+    const btn = document.getElementById("btnStaffSignup");
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Creating Account...";
+
+    const designation = document.getElementById("su_staffDesignation").value;
+    const payload = {
+      staffId: document.getElementById("su_staffId").value.trim(),
+      name: document.getElementById("su_staffName").value.trim(),
+      email: document.getElementById("su_staffEmail").value.trim(),
+      password: document.getElementById("su_staffPassword").value,
+      designation: designation,
+      department: designation === "warden" ? "Hostel" : document.getElementById("su_staffDepartment").value,
+      batch: designation === "incharge" ? document.getElementById("su_staffBatch").value : null
+    };
+
+    try {
+      const res = await registerStaff(payload);
+      if (res.ok) {
+        document.getElementById("staffSignupForm").reset();
+        switchToLogin();
+        // Set tab to staff and populate staffId
+        document.querySelector('#loginSection .role-tab[data-role="staff"]').click();
+        document.getElementById("staffDesignation").value = designation;
+        document.getElementById("staffId").value = payload.staffId;
+        document.getElementById("staffPassword").focus();
+        showLoginSuccess("Staff registration successful! You can now log in with your credentials.");
+      } else {
+        showSignupError(res.error || "Staff registration failed.");
+      }
+    } catch (err) {
+      showSignupError("Connection error: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  });
+
+  // --- Log In Form Submit ---
   document.getElementById("loginForm").addEventListener("submit", async e => {
     e.preventDefault();
     hideError();
@@ -186,13 +603,13 @@
         const password = document.getElementById("studentPassword").value;
         if (!regNo || !password) {
           btn.disabled = false; btn.textContent = "Log In";
-          return showError("Enter your register number and password.");
+          return showLoginError("Enter your register number and password.");
         }
         const res = await loginStudent(regNo, password);
         if (res.ok) {
           window.location.href = "student.html";
         } else {
-          showError(res.error || "Register number or password is incorrect.");
+          showLoginError(res.error || "Register number or password is incorrect.");
         }
       }
 
@@ -202,13 +619,13 @@
         const password = document.getElementById("staffPassword").value;
         if (!staffId || !password) {
           btn.disabled = false; btn.textContent = "Log In";
-          return showError("Enter your staff ID and password.");
+          return showLoginError("Enter your staff ID and password.");
         }
         const res = await loginStaff(staffId, password, designation);
         if (res.ok) {
           window.location.href = "staff.html";
         } else {
-          showError(res.error || "Staff ID, password or selected role is incorrect.");
+          showLoginError(res.error || "Staff ID, password or selected role is incorrect.");
         }
       }
 
@@ -217,20 +634,119 @@
         const password = document.getElementById("adminPassword").value;
         if (!username || !password) {
           btn.disabled = false; btn.textContent = "Log In";
-          return showError("Enter the admin username and password.");
+          return showLoginError("Enter the admin username and password.");
         }
         const res = await loginAdmin(username, password);
         if (res.ok) {
           window.location.href = "admin.html";
         } else {
-          showError(res.error || "Admin username or password is incorrect.");
+          showLoginError(res.error || "Admin username or password is incorrect.");
         }
       }
     } catch (err) {
-      showError("Connection error: " + err.message);
+      showLoginError("Connection error: " + err.message);
     } finally {
       btn.disabled = false;
       btn.textContent = "Log In";
+    }
+  });
+
+  // --- Forgot Password Modal Logic ---
+  const forgotModal = document.getElementById("forgotPasswordModal");
+  const forgotRoleStudentBtn = document.getElementById("forgotRoleStudentBtn");
+  const forgotRoleStaffBtn = document.getElementById("forgotRoleStaffBtn");
+  const forgotIdLabel = document.getElementById("forgotIdLabel");
+  const forgotIdentifier = document.getElementById("forgotIdentifier");
+
+  function openForgotModal() {
+    hideError();
+    document.getElementById("forgotForm").reset();
+    setForgotRole("student");
+    forgotModal.classList.add("show");
+  }
+
+  function closeForgotModal() {
+    forgotModal.classList.remove("show");
+  }
+
+  document.getElementById("openForgotBtn").addEventListener("click", openForgotModal);
+
+  function setForgotRole(role) {
+    forgotRole = role;
+    if (role === "student") {
+      forgotRoleStudentBtn.classList.add("active");
+      forgotRoleStaffBtn.classList.remove("active");
+      forgotIdLabel.textContent = "Register Number *";
+      forgotIdentifier.placeholder = "e.g. 610225205031";
+    } else {
+      forgotRoleStaffBtn.classList.add("active");
+      forgotRoleStudentBtn.classList.remove("active");
+      forgotIdLabel.textContent = "Staff ID *";
+      forgotIdentifier.placeholder = "e.g. STF-INC01";
+    }
+  }
+
+  forgotRoleStudentBtn.addEventListener("click", () => setForgotRole("student"));
+  forgotRoleStaffBtn.addEventListener("click", () => setForgotRole("staff"));
+
+  document.getElementById("forgotForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    hideError();
+
+    const identifier = forgotIdentifier.value.trim();
+    const email = document.getElementById("forgotEmail").value.trim();
+    const newPass = document.getElementById("forgotNewPassword").value;
+    const confirmPass = document.getElementById("forgotConfirmPassword").value;
+
+    if (!identifier || !email || !newPass) {
+      return showForgotError("Please fill in all required fields.");
+    }
+    if (newPass !== confirmPass) {
+      return showForgotError("Passwords do not match. Please re-enter.");
+    }
+    if (newPass.length < 4) {
+      return showForgotError("Password must be at least 4 characters long.");
+    }
+
+    const btn = document.getElementById("btnForgotSubmit");
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Verifying...";
+
+    try {
+      const res = await forgotPassword({
+        role: forgotRole,
+        identifier: identifier,
+        email: email,
+        newPassword: newPass
+      });
+
+      if (res.ok) {
+        showForgotSuccess(res.message || "Password reset successfully!");
+        setTimeout(() => {
+          closeForgotModal();
+          switchToLogin();
+          if (forgotRole === "student") {
+            document.querySelector('#loginSection .role-tab[data-role="student"]').click();
+            document.getElementById("studentRegNo").value = identifier;
+            document.getElementById("studentPassword").value = "";
+            document.getElementById("studentPassword").focus();
+          } else {
+            document.querySelector('#loginSection .role-tab[data-role="staff"]').click();
+            document.getElementById("staffId").value = identifier;
+            document.getElementById("staffPassword").value = "";
+            document.getElementById("staffPassword").focus();
+          }
+          showLoginSuccess("Password reset successfully! Please log in with your new password.");
+        }, 1200);
+      } else {
+        showForgotError(res.error || "Password reset failed. Please check your credentials.");
+      }
+    } catch (err) {
+      showForgotError("Connection error: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
     }
   });
 

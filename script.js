@@ -129,6 +129,61 @@ async function loginAdmin(username, password) {
   }
 }
 
+// 4. Register Student API (Public Self-Registration)
+async function registerStudent(payload) {
+  try {
+    const res = await fetch(`${API_BASE}/auth/register-student`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      return { ok: true, message: data.message };
+    }
+    return { ok: false, error: data.message || "Registration failed." };
+  } catch (err) {
+    return { ok: false, error: "Cannot connect to server. Ensure Node.js server is running." };
+  }
+}
+
+// 5. Register Staff API (Public Self-Registration)
+async function registerStaff(payload) {
+  try {
+    const res = await fetch(`${API_BASE}/auth/register-staff`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      return { ok: true, message: data.message };
+    }
+    return { ok: false, error: data.message || "Registration failed." };
+  } catch (err) {
+    return { ok: false, error: "Cannot connect to server. Ensure Node.js server is running." };
+  }
+}
+
+// 6. Forgot / Reset Password API
+// Requires role ('student' | 'staff'), identifier (regNo | staffId), registered Gmail, and new password
+async function forgotPassword(payload) {
+  try {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      return { ok: true, message: data.message };
+    }
+    return { ok: false, error: data.message || "Password reset failed." };
+  } catch (err) {
+    return { ok: false, error: "Cannot connect to server. Ensure Node.js server is running." };
+  }
+}
+
 /* ---------------------------------------------------------
    ADMIN ACTIONS (Database backed)
    --------------------------------------------------------- */
