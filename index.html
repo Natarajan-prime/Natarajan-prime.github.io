@@ -58,7 +58,7 @@
         <div class="clock-time"><span style="color:#38bdf8;">⏰</span> <span class="live-clock-time">--:--:--</span></div>
       </div>
 
-      <div class="crest"><img src="ChatGPT Image Sep 27, 2026, 12_50_34 AM.png" alt=""height="50px" width="50px"></div>
+      <div class="crest"><img src="ChatGPT Image Sep 27, 2026, 12_50_34 AM.png" alt="" height="50" width="50"></div>
       <p class="college-name">Annapoorana Engineering College</p>
       <p class="college-sub">(An Autonomous Institution)</p>
       <!-- <p class="Madeby">MADE BY</p>
@@ -78,11 +78,12 @@
         <span class="clock-time-text">⏰ <span class="live-clock-time">--:--:--</span></span>
       </div>
 
-      <!-- Auth Mode Switch: Log In vs Sign Up -->
+      <!-- OPTIONAL: Auth Mode Switch (Uncomment below if you wish to show the top Log In / Sign Up toggle buttons):
       <div class="auth-mode-switch" role="tablist">
         <button class="auth-mode-btn active" id="modeLoginBtn" type="button">🔑 Log In</button>
         <button class="auth-mode-btn" id="modeSignupBtn" type="button">📝 Create Account (Sign Up)</button>
       </div>
+      -->
 
       <!-- ==============================================
            1. LOG IN SECTION
@@ -150,14 +151,18 @@
           <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
         </form>
 
+       
         <div style="margin-top:16px; text-align:center; font-size:13px; color:var(--ink-700);">
-          Don't have an account? <a href="javascript:void(0)" id="switchSignupLink" style="color:#2563eb; font-weight:700; text-decoration:none;">Create an Account / Sign Up &rarr;</a>
+          Don't have an account? <a href="javascript:void(0)" id="switchSignupLink" onclick="switchToSignup()" style="color:#2563eb; font-weight:700; text-decoration:none; cursor:pointer;">Create an Account / Sign Up &rarr;</a>
         </div>
+       
       </div>
 
       <!-- ==============================================
-           2. SIGN UP / REGISTER SECTION
+           2. SIGN UP / REGISTER SECTION (COMMENTED OUT AS REQUESTED)
+           (Uncomment this section below whenever you want to enable public sign up)
            ============================================== -->
+      
       <div id="signupSection" style="display:none;">
         <div class="role-tabs" role="tablist">
           <button class="role-tab active" data-signup-role="student" type="button">Student Sign Up</button>
@@ -167,7 +172,6 @@
         <div class="form-error" id="signupError"></div>
         <div class="form-success" id="signupSuccess"></div>
 
-        <!-- Student Self-Registration Form -->
         <form id="studentSignupForm">
           <div class="grid-2">
             <div class="field">
@@ -237,7 +241,6 @@
             </div>
           </div>
 
-          <!-- Dynamic Hostel Fields -->
           <div id="su_hostelFieldsWrapper" style="display:none;" class="grid-2">
             <div class="field">
               <label for="su_floor">Hostel Floor / Block *</label>
@@ -268,7 +271,6 @@
           <button type="submit" class="btn btn-primary btn-block" id="btnStudentSignup">Register Student Account</button>
         </form>
 
-        <!-- Staff Self-Registration Form -->
         <form id="staffSignupForm" style="display:none;">
           <div class="grid-2">
             <div class="field">
@@ -332,14 +334,15 @@
         </form>
 
         <div style="margin-top:16px; text-align:center; font-size:13px; color:var(--ink-700);">
-          Already have an account? <a href="javascript:void(0)" id="switchLoginLink" style="color:#2563eb; font-weight:700; text-decoration:none;">Log In here &rarr;</a>
+          Already have an account? <a href="javascript:void(0)" id="switchLoginLink" onclick="switchToLogin()" style="color:#2563eb; font-weight:700; text-decoration:none; cursor:pointer;">Log In here &rarr;</a>
         </div>
       </div>
+     
 
     </div>
 
   </div>
-</div>
+</div> 
 
 <!-- ==============================================
      3. FORGOT PASSWORD MODAL
@@ -397,32 +400,36 @@
   let activeSignupRole = "student";
   let forgotRole = "student";
 
-  // --- Auth Mode Switcher (Log In vs Sign Up) ---
+  // --- Auth Mode Switcher (Log In vs Sign Up - Active if uncommented) ---
   const modeLoginBtn = document.getElementById("modeLoginBtn");
   const modeSignupBtn = document.getElementById("modeSignupBtn");
   const loginSection = document.getElementById("loginSection");
   const signupSection = document.getElementById("signupSection");
 
   function switchToLogin() {
-    modeLoginBtn.classList.add("active");
-    modeSignupBtn.classList.remove("active");
-    loginSection.style.display = "block";
-    signupSection.style.display = "none";
+    if (modeLoginBtn) modeLoginBtn.classList.add("active");
+    if (modeSignupBtn) modeSignupBtn.classList.remove("active");
+    if (loginSection) loginSection.style.display = "block";
+    if (signupSection) signupSection.style.display = "none";
     hideError();
   }
 
   function switchToSignup() {
-    modeSignupBtn.classList.add("active");
-    modeLoginBtn.classList.remove("active");
-    signupSection.style.display = "block";
-    loginSection.style.display = "none";
+    if (modeSignupBtn) modeSignupBtn.classList.add("active");
+    if (modeLoginBtn) modeLoginBtn.classList.remove("active");
+    if (signupSection) signupSection.style.display = "block";
+    if (loginSection) loginSection.style.display = "none";
     hideError();
   }
+  window.switchToLogin = switchToLogin;
+  window.switchToSignup = switchToSignup;
 
-  modeLoginBtn.addEventListener("click", switchToLogin);
-  modeSignupBtn.addEventListener("click", switchToSignup);
-  document.getElementById("switchSignupLink").addEventListener("click", switchToSignup);
-  document.getElementById("switchLoginLink").addEventListener("click", switchToLogin);
+  if (modeLoginBtn) modeLoginBtn.addEventListener("click", switchToLogin);
+  if (modeSignupBtn) modeSignupBtn.addEventListener("click", switchToSignup);
+  const switchSignupLink = document.getElementById("switchSignupLink");
+  if (switchSignupLink) switchSignupLink.addEventListener("click", switchToSignup);
+  const switchLoginLink = document.getElementById("switchLoginLink");
+  if (switchLoginLink) switchLoginLink.addEventListener("click", switchToLogin);
 
   // --- Login Tab Switching ---
   document.querySelectorAll("#loginSection .role-tab").forEach(tab => {
@@ -437,157 +444,165 @@
     });
   });
 
-  // --- Sign Up Tab Switching ---
+  // --- Sign Up Tab Switching (Active when uncommented) ---
   document.querySelectorAll("#signupSection .role-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll("#signupSection .role-tab").forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
       activeSignupRole = tab.dataset.signupRole;
-      document.getElementById("studentSignupForm").style.display = activeSignupRole === "student" ? "block" : "none";
-      document.getElementById("staffSignupForm").style.display = activeSignupRole === "staff" ? "block" : "none";
+      const stuF = document.getElementById("studentSignupForm");
+      if (stuF) stuF.style.display = activeSignupRole === "student" ? "block" : "none";
+      const stfF = document.getElementById("staffSignupForm");
+      if (stfF) stfF.style.display = activeSignupRole === "staff" ? "block" : "none";
       hideError();
     });
   });
 
   function toggleSignupHostelFields() {
-    const isHostel = document.getElementById("su_studentCategory").value === "true";
-    document.getElementById("su_hostelFieldsWrapper").style.display = isHostel ? "grid" : "none";
+    const cat = document.getElementById("su_studentCategory");
+    if (!cat) return;
+    const isHostel = cat.value === "true";
+    const wrap = document.getElementById("su_hostelFieldsWrapper");
+    if (wrap) wrap.style.display = isHostel ? "grid" : "none";
   }
 
   function toggleSignupStaffFields() {
-    const des = document.getElementById("su_staffDesignation").value;
-    document.getElementById("su_deptGroup").style.display = (des === "warden") ? "none" : "block";
-    document.getElementById("su_batchGroup").style.display = (des === "incharge") ? "block" : "none";
+    const des = document.getElementById("su_staffDesignation");
+    if (!des) return;
+    const deptG = document.getElementById("su_deptGroup");
+    if (deptG) deptG.style.display = (des.value === "warden") ? "none" : "block";
+    const bG = document.getElementById("su_batchGroup");
+    if (bG) bG.style.display = (des.value === "incharge") ? "block" : "none";
   }
 
   function hideError() {
     const lErr = document.getElementById("loginError");
-    lErr.classList.remove("show"); lErr.textContent = "";
+    if (lErr) { lErr.classList.remove("show"); lErr.textContent = ""; }
     const lOk = document.getElementById("loginSuccess");
-    lOk.classList.remove("show"); lOk.textContent = "";
+    if (lOk) { lOk.classList.remove("show"); lOk.textContent = ""; }
     const sErr = document.getElementById("signupError");
-    sErr.classList.remove("show"); sErr.textContent = "";
+    if (sErr) { sErr.classList.remove("show"); sErr.textContent = ""; }
     const sOk = document.getElementById("signupSuccess");
-    sOk.classList.remove("show"); sOk.textContent = "";
+    if (sOk) { sOk.classList.remove("show"); sOk.textContent = ""; }
     const fErr = document.getElementById("forgotError");
-    fErr.classList.remove("show"); fErr.textContent = "";
+    if (fErr) { fErr.classList.remove("show"); fErr.textContent = ""; }
     const fOk = document.getElementById("forgotSuccess");
-    fOk.classList.remove("show"); fOk.textContent = "";
+    if (fOk) { fOk.classList.remove("show"); fOk.textContent = ""; }
   }
 
   function showLoginError(msg) {
     const el = document.getElementById("loginError");
-    el.textContent = msg; el.classList.add("show");
+    if (el) { el.textContent = msg; el.classList.add("show"); }
   }
   function showLoginSuccess(msg) {
     const el = document.getElementById("loginSuccess");
-    el.textContent = msg; el.classList.add("show");
+    if (el) { el.textContent = msg; el.classList.add("show"); }
   }
   function showSignupError(msg) {
     const el = document.getElementById("signupError");
-    el.textContent = msg; el.classList.add("show");
+    if (el) { el.textContent = msg; el.classList.add("show"); }
   }
   function showSignupSuccess(msg) {
     const el = document.getElementById("signupSuccess");
-    el.textContent = msg; el.classList.add("show");
+    if (el) { el.textContent = msg; el.classList.add("show"); }
   }
   function showForgotError(msg) {
     const el = document.getElementById("forgotError");
-    el.textContent = msg; el.classList.add("show");
+    if (el) { el.textContent = msg; el.classList.add("show"); }
   }
   function showForgotSuccess(msg) {
     const el = document.getElementById("forgotSuccess");
-    el.textContent = msg; el.classList.add("show");
+    if (el) { el.textContent = msg; el.classList.add("show"); }
   }
 
-  // --- Student Self-Registration Submit ---
-  document.getElementById("studentSignupForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    hideError();
-    const btn = document.getElementById("btnStudentSignup");
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "Creating Account...";
+  // --- Student Self-Registration Submit (Active when uncommented) ---
+  const stuSignupForm = document.getElementById("studentSignupForm");
+  if (stuSignupForm) {
+    stuSignupForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      hideError();
+      const btn = document.getElementById("btnStudentSignup");
+      const origText = btn ? btn.textContent : "";
+      if (btn) { btn.disabled = true; btn.textContent = "Creating Account..."; }
 
-    const isHosteller = document.getElementById("su_studentCategory").value === "true";
-    const payload = {
-      regNo: document.getElementById("su_studentRegNo").value.trim(),
-      name: document.getElementById("su_studentName").value.trim(),
-      email: document.getElementById("su_studentEmail").value.trim(),
-      password: document.getElementById("su_studentPassword").value,
-      department: document.getElementById("su_studentDepartment").value,
-      year: document.getElementById("su_studentYear").value,
-      batch: document.getElementById("su_studentBatch").value,
-      isHosteller: isHosteller,
-      floor: isHosteller ? document.getElementById("su_floor").value : null,
-      room: isHosteller ? document.getElementById("su_room").value.trim() : null,
-      studentPhone: document.getElementById("su_studentPhone").value.trim(),
-      parentContact: document.getElementById("su_parentContact").value.trim()
-    };
+      const isHosteller = document.getElementById("su_studentCategory").value === "true";
+      const payload = {
+        regNo: document.getElementById("su_studentRegNo").value.trim(),
+        name: document.getElementById("su_studentName").value.trim(),
+        email: document.getElementById("su_studentEmail").value.trim(),
+        password: document.getElementById("su_studentPassword").value,
+        department: document.getElementById("su_studentDepartment").value,
+        year: document.getElementById("su_studentYear").value,
+        batch: document.getElementById("su_studentBatch").value,
+        isHosteller: isHosteller,
+        floor: isHosteller ? document.getElementById("su_floor").value : null,
+        room: isHosteller ? document.getElementById("su_room").value.trim() : null,
+        studentPhone: document.getElementById("su_studentPhone").value.trim(),
+        parentContact: document.getElementById("su_parentContact").value.trim()
+      };
 
-    try {
-      const res = await registerStudent(payload);
-      if (res.ok) {
-        document.getElementById("studentSignupForm").reset();
-        toggleSignupHostelFields();
-        switchToLogin();
-        // Set tab to student and populate regNo
-        document.querySelector('#loginSection .role-tab[data-role="student"]').click();
-        document.getElementById("studentRegNo").value = payload.regNo;
-        document.getElementById("studentPassword").focus();
-        showLoginSuccess("Registration successful! You can now log in with your credentials.");
-      } else {
-        showSignupError(res.error || "Student registration failed.");
+      try {
+        const res = await registerStudent(payload);
+        if (res.ok) {
+          stuSignupForm.reset();
+          toggleSignupHostelFields();
+          switchToLogin();
+          document.querySelector('#loginSection .role-tab[data-role="student"]').click();
+          document.getElementById("studentRegNo").value = payload.regNo;
+          document.getElementById("studentPassword").focus();
+          showLoginSuccess("Registration successful! You can now log in with your credentials.");
+        } else {
+          showSignupError(res.error || "Student registration failed.");
+        }
+      } catch (err) {
+        showSignupError("Connection error: " + err.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = origText; }
       }
-    } catch (err) {
-      showSignupError("Connection error: " + err.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = origText;
-    }
-  });
+    });
+  }
 
-  // --- Staff Self-Registration Submit ---
-  document.getElementById("staffSignupForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    hideError();
-    const btn = document.getElementById("btnStaffSignup");
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "Creating Account...";
+  // --- Staff Self-Registration Submit (Active when uncommented) ---
+  const stfSignupForm = document.getElementById("staffSignupForm");
+  if (stfSignupForm) {
+    stfSignupForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      hideError();
+      const btn = document.getElementById("btnStaffSignup");
+      const origText = btn ? btn.textContent : "";
+      if (btn) { btn.disabled = true; btn.textContent = "Creating Account..."; }
 
-    const designation = document.getElementById("su_staffDesignation").value;
-    const payload = {
-      staffId: document.getElementById("su_staffId").value.trim(),
-      name: document.getElementById("su_staffName").value.trim(),
-      email: document.getElementById("su_staffEmail").value.trim(),
-      password: document.getElementById("su_staffPassword").value,
-      designation: designation,
-      department: designation === "warden" ? "Hostel" : document.getElementById("su_staffDepartment").value,
-      batch: designation === "incharge" ? document.getElementById("su_staffBatch").value : null
-    };
+      const designation = document.getElementById("su_staffDesignation").value;
+      const payload = {
+        staffId: document.getElementById("su_staffId").value.trim(),
+        name: document.getElementById("su_staffName").value.trim(),
+        email: document.getElementById("su_staffEmail").value.trim(),
+        password: document.getElementById("su_staffPassword").value,
+        designation: designation,
+        department: designation === "warden" ? "Hostel" : document.getElementById("su_staffDepartment").value,
+        batch: designation === "incharge" ? document.getElementById("su_staffBatch").value : null
+      };
 
-    try {
-      const res = await registerStaff(payload);
-      if (res.ok) {
-        document.getElementById("staffSignupForm").reset();
-        switchToLogin();
-        // Set tab to staff and populate staffId
-        document.querySelector('#loginSection .role-tab[data-role="staff"]').click();
-        document.getElementById("staffDesignation").value = designation;
-        document.getElementById("staffId").value = payload.staffId;
-        document.getElementById("staffPassword").focus();
-        showLoginSuccess("Staff registration successful! You can now log in with your credentials.");
-      } else {
-        showSignupError(res.error || "Staff registration failed.");
+      try {
+        const res = await registerStaff(payload);
+        if (res.ok) {
+          stfSignupForm.reset();
+          switchToLogin();
+          document.querySelector('#loginSection .role-tab[data-role="staff"]').click();
+          document.getElementById("staffDesignation").value = designation;
+          document.getElementById("staffId").value = payload.staffId;
+          document.getElementById("staffPassword").focus();
+          showLoginSuccess("Staff registration successful! You can now log in with your credentials.");
+        } else {
+          showSignupError(res.error || "Staff registration failed.");
+        }
+      } catch (err) {
+        showSignupError("Connection error: " + err.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = origText; }
       }
-    } catch (err) {
-      showSignupError("Connection error: " + err.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = origText;
-    }
-  });
+    });
+  }
 
   // --- Log In Form Submit ---
   document.getElementById("loginForm").addEventListener("submit", async e => {
