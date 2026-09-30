@@ -63,7 +63,7 @@ button{font-family:inherit;}
 
 /* ---------- Login layout ---------- */
 .login-shell{
-  min-height:100vh;
+  min-height:calc(100vh - 40px);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -1567,6 +1567,21 @@ body[data-page="login"] {
   z-index: 2;
 }
 
+.footer {
+  position: relative;
+  z-index: 2;
+  min-height: 40px;
+  padding: 10px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd5e1;
+  text-align: center;
+  font-size: 12px;
+}
+
+.footer p {
+  margin: 0;
+}
+
 .modern-wave-bg {
   position: fixed;
   inset: 0;
@@ -1955,7 +1970,8 @@ body[data-page="login"] {
   color: #0f172a;
   font-weight: 700;
 }
-.slip-footer {
+/* .slip-footer {
+  background-color: #0877e6;
   margin-top: 18px;
   display: flex;
   justify-content: space-between;
@@ -1963,7 +1979,7 @@ body[data-page="login"] {
   border-top: 1px solid #cbd5e1;
   padding-top: 16px;
   font-size: 11px;
-}
+} */
 .slip-stamp-box {
   width: 130px;
   height: 55px;
@@ -1984,3 +2000,10 @@ body[data-page="login"] {
   margin-left: 56px;
   color: #3E94E0;
 } */
+.footer-text {
+    background-color: #060053;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin-top: 20px;
+}
