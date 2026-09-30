@@ -626,8 +626,7 @@ function buildPrintSheet(req) {
       <div class="slip-header">
         <div class="slip-crest-row">
           <div class="slip-crest-badge">
-            AEC
-            <span>SALEM</span>
+           <img src="ChatGPT Image Sep 27, 2026, 12_50_34 AM.png" alt=""height="50px" width="50px"> 
           </div>
           <div class="slip-header-center">
             <h1 class="slip-college-name">ANNAPOORANA ENGINEERING COLLEGE</h1>
