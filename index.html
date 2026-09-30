@@ -198,7 +198,7 @@
           <div class="grid-2">
             <div class="field">
               <label for="su_studentDepartment">Department *</label>
-              <select id="su_studentDepartment">
+              <select id="su_studentDepartment" onchange="handleDeptChange('su_studentDepartment', 'su_customStudentDeptBox')">
                 <option value="Information Technology">Information Technology</option>
                 <option value="Computer Science and Engineering">Computer Science and Engineering</option>
                 <option value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</option>
@@ -208,7 +208,12 @@
                 <option value="Mechanical Engineering">Mechanical Engineering</option>
                 <option value="Civil Engineering">Civil Engineering</option>
                 <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+                <option value="__custom__">➕ Add Other Department...</option>
               </select>
+              <div id="su_customStudentDeptBox" style="display:none;" class="custom-input-group">
+                <input type="text" id="su_customStudentDeptInput" placeholder="Enter department name" onkeydown="if(event.key==='Enter'){event.preventDefault();saveCustomDept('su_studentDepartment','su_customStudentDeptInput','su_customStudentDeptBox');}" />
+                <button type="button" class="btn btn-outline btn-sm" onclick="saveCustomDept('su_studentDepartment', 'su_customStudentDeptInput', 'su_customStudentDeptBox')">Add</button>
+              </div>
             </div>
             <div class="field">
               <label for="su_studentYear">Academic Year *</label>
@@ -224,13 +229,18 @@
           <div class="grid-2">
             <div class="field">
               <label for="su_studentBatch">Batch *</label>
-              <select id="su_studentBatch">
+              <select id="su_studentBatch" onchange="handleBatchChange('su_studentBatch', 'su_customStudentBatchBox')">
                 <option value="2022-2026">2022-2026</option>
                 <option value="2023-2027">2023-2027</option>
                 <option value="2024-2028" selected>2024-2028</option>
                 <option value="2025-2029">2025-2029</option>
                 <option value="2026-2030">2026-2030</option>
+                <option value="__custom__">➕ Add Other Batch...</option>
               </select>
+              <div id="su_customStudentBatchBox" style="display:none;" class="custom-input-group">
+                <input type="text" id="su_customStudentBatchInput" placeholder="e.g. 2021-2025" onkeydown="if(event.key==='Enter'){event.preventDefault();saveCustomBatch('su_studentBatch','su_customStudentBatchInput','su_customStudentBatchBox');}" />
+                <button type="button" class="btn btn-outline btn-sm" onclick="saveCustomBatch('su_studentBatch', 'su_customStudentBatchInput', 'su_customStudentBatchBox')">Add</button>
+              </div>
             </div>
             <div class="field">
               <label for="su_studentCategory">Residence Category *</label>
@@ -306,7 +316,7 @@
           <div class="grid-2">
             <div class="field" id="su_deptGroup">
               <label for="su_staffDepartment">Department</label>
-              <select id="su_staffDepartment">
+              <select id="su_staffDepartment" onchange="handleDeptChange('su_staffDepartment', 'su_customStaffDeptBox')">
                 <option value="Information Technology">Information Technology</option>
                 <option value="Computer Science and Engineering">Computer Science and Engineering</option>
                 <option value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</option>
@@ -316,17 +326,27 @@
                 <option value="Mechanical Engineering">Mechanical Engineering</option>
                 <option value="Civil Engineering">Civil Engineering</option>
                 <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+                <option value="__custom__">➕ Add Other Department...</option>
               </select>
+              <div id="su_customStaffDeptBox" style="display:none;" class="custom-input-group">
+                <input type="text" id="su_customStaffDeptInput" placeholder="Enter department name" onkeydown="if(event.key==='Enter'){event.preventDefault();saveCustomDept('su_staffDepartment','su_customStaffDeptInput','su_customStaffDeptBox');}" />
+                <button type="button" class="btn btn-outline btn-sm" onclick="saveCustomDept('su_staffDepartment', 'su_customStaffDeptInput', 'su_customStaffDeptBox')">Add</button>
+              </div>
             </div>
             <div class="field" id="su_batchGroup">
               <label for="su_staffBatch">Assigned Batch (For Incharge)</label>
-              <select id="su_staffBatch">
+              <select id="su_staffBatch" onchange="handleBatchChange('su_staffBatch', 'su_customStaffBatchBox')">
                 <option value="2022-2026">2022-2026</option>
                 <option value="2023-2027">2023-2027</option>
                 <option value="2024-2028" selected>2024-2028</option>
                 <option value="2025-2029">2025-2029</option>
                 <option value="2026-2030">2026-2030</option>
+                <option value="__custom__">➕ Add Other Batch...</option>
               </select>
+              <div id="su_customStaffBatchBox" style="display:none;" class="custom-input-group">
+                <input type="text" id="su_customStaffBatchInput" placeholder="e.g. 2021-2025" onkeydown="if(event.key==='Enter'){event.preventDefault();saveCustomBatch('su_staffBatch','su_customStaffBatchInput','su_customStaffBatchBox');}" />
+                <button type="button" class="btn btn-outline btn-sm" onclick="saveCustomBatch('su_staffBatch', 'su_customStaffBatchInput', 'su_customStaffBatchBox')">Add</button>
+              </div>
             </div>
           </div>
 
@@ -475,6 +495,87 @@
     if (bG) bG.style.display = (des.value === "incharge") ? "block" : "none";
   }
 
+  function handleDeptChange(selectId, boxId) {
+    const sel = document.getElementById(selectId);
+    const box = document.getElementById(boxId);
+    if (!sel || !box) return;
+    box.style.display = sel.value === "__custom__" ? "flex" : "none";
+    if (sel.value === "__custom__") {
+      const input = box.querySelector("input");
+      if (input) input.focus();
+    }
+  }
+
+  function saveCustomDept(selectId, inputId, boxId) {
+    const input = document.getElementById(inputId);
+    const sel = document.getElementById(selectId);
+    const box = document.getElementById(boxId);
+    if (!input || !sel) return;
+    const val = input.value.trim();
+    if (!val) return;
+
+    let existing = false;
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value.toLowerCase() === val.toLowerCase()) {
+        sel.selectedIndex = i;
+        existing = true;
+        break;
+      }
+    }
+    if (!existing) {
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
+      sel.insertBefore(opt, sel.lastElementChild);
+      sel.value = val;
+    }
+    if (box) box.style.display = "none";
+    input.value = "";
+  }
+
+  function handleBatchChange(selectId, boxId) {
+    const sel = document.getElementById(selectId);
+    const box = document.getElementById(boxId);
+    if (!sel || !box) return;
+    box.style.display = sel.value === "__custom__" ? "flex" : "none";
+    if (sel.value === "__custom__") {
+      const input = box.querySelector("input");
+      if (input) input.focus();
+    }
+  }
+
+  function saveCustomBatch(selectId, inputId, boxId) {
+    const input = document.getElementById(inputId);
+    const sel = document.getElementById(selectId);
+    const box = document.getElementById(boxId);
+    if (!input || !sel) return;
+    const val = input.value.trim();
+    if (!val) return;
+
+    let existing = false;
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value.toLowerCase() === val.toLowerCase()) {
+        sel.selectedIndex = i;
+        existing = true;
+        break;
+      }
+    }
+    if (!existing) {
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
+      sel.insertBefore(opt, sel.lastElementChild);
+      sel.value = val;
+    }
+    if (box) box.style.display = "none";
+    input.value = "";
+  }
+
+  window.handleDeptChange = handleDeptChange;
+  window.saveCustomDept = saveCustomDept;
+  window.handleBatchChange = handleBatchChange;
+  window.saveCustomBatch = saveCustomBatch;
+
   function hideError() {
     const lErr = document.getElementById("loginError");
     if (lErr) { lErr.classList.remove("show"); lErr.textContent = ""; }
@@ -525,15 +626,35 @@
       const origText = btn ? btn.textContent : "";
       if (btn) { btn.disabled = true; btn.textContent = "Creating Account..."; }
 
+      let department = document.getElementById("su_studentDepartment").value;
+      if (department === "__custom__") {
+        const customDept = document.getElementById("su_customStudentDeptInput").value.trim();
+        if (!customDept) {
+          if (btn) { btn.disabled = false; btn.textContent = origText; }
+          return showSignupError("Please enter your Department name.");
+        }
+        department = customDept;
+      }
+
+      let batch = document.getElementById("su_studentBatch").value;
+      if (batch === "__custom__") {
+        const customBatch = document.getElementById("su_customStudentBatchInput").value.trim();
+        if (!customBatch) {
+          if (btn) { btn.disabled = false; btn.textContent = origText; }
+          return showSignupError("Please enter your Batch (e.g. 2021-2025).");
+        }
+        batch = customBatch;
+      }
+
       const isHosteller = document.getElementById("su_studentCategory").value === "true";
       const payload = {
         regNo: document.getElementById("su_studentRegNo").value.trim(),
         name: document.getElementById("su_studentName").value.trim(),
         email: document.getElementById("su_studentEmail").value.trim(),
         password: document.getElementById("su_studentPassword").value,
-        department: document.getElementById("su_studentDepartment").value,
+        department: department,
         year: document.getElementById("su_studentYear").value,
-        batch: document.getElementById("su_studentBatch").value,
+        batch: batch,
         isHosteller: isHosteller,
         floor: isHosteller ? document.getElementById("su_floor").value : null,
         room: isHosteller ? document.getElementById("su_room").value.trim() : null,
@@ -573,14 +694,34 @@
       if (btn) { btn.disabled = true; btn.textContent = "Creating Account..."; }
 
       const designation = document.getElementById("su_staffDesignation").value;
+      let department = designation === "warden" ? "Hostel" : document.getElementById("su_staffDepartment").value;
+      if (designation !== "warden" && department === "__custom__") {
+        const customDept = document.getElementById("su_customStaffDeptInput").value.trim();
+        if (!customDept) {
+          if (btn) { btn.disabled = false; btn.textContent = origText; }
+          return showSignupError("Please enter your Department name.");
+        }
+        department = customDept;
+      }
+
+      let batch = designation === "incharge" ? document.getElementById("su_staffBatch").value : null;
+      if (designation === "incharge" && batch === "__custom__") {
+        const customBatch = document.getElementById("su_customStaffBatchInput").value.trim();
+        if (!customBatch) {
+          if (btn) { btn.disabled = false; btn.textContent = origText; }
+          return showSignupError("Please enter your assigned Batch (e.g. 2021-2025).");
+        }
+        batch = customBatch;
+      }
+
       const payload = {
         staffId: document.getElementById("su_staffId").value.trim(),
         name: document.getElementById("su_staffName").value.trim(),
         email: document.getElementById("su_staffEmail").value.trim(),
         password: document.getElementById("su_staffPassword").value,
         designation: designation,
-        department: designation === "warden" ? "Hostel" : document.getElementById("su_staffDepartment").value,
-        batch: designation === "incharge" ? document.getElementById("su_staffBatch").value : null
+        department: department,
+        batch: batch
       };
 
       try {
