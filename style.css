@@ -1116,7 +1116,7 @@ textarea {
 }
 
 /* Print Media Query */
-@media {
+@media print {
   @page {
     size: A4 portrait;
     margin: 8mm 10mm;
