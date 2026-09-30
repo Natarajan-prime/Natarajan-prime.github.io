@@ -2001,10 +2001,11 @@ body[data-page="login"] {
   color: #3E94E0;
 } */
 .footer-text {
-    background-color: #060053;
+    background-color: #002357;
     color: white;
     text-align: center;
     padding: 10px;
     margin-top: 20px;
-    display: inline-block;
+    display: block;
+    font-size: large;
 }
