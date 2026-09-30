@@ -173,13 +173,15 @@ exports.getAllRequests = async (req, res) => {
 exports.deleteStudent = async (req, res) => {
     try {
         const { id } = req.params;
-        // Mark related leave requests as deleted_by_admin so historical records remain safe for HOD & Advisor
-        await db.query(`UPDATE leave_requests SET deleted_by_admin = 1 WHERE student_id = ? OR reg_no = (SELECT identifier FROM users WHERE id = ?)`, [id, id]);
-        const [result] = await db.query(`DELETE FROM users WHERE id = ? AND role = 'student'`, [id]);
-        if (result.affectedRows === 0) {
+        const [userRows] = await db.query(`SELECT identifier, roll_number FROM users WHERE id = ? AND role = 'student'`, [id]);
+        if (userRows.length === 0) {
             return res.status(404).json({ success: false, message: 'Student not found.' });
         }
-        return res.json({ success: true, message: 'Student deleted successfully (leave records preserved for staff/HOD).' });
+        const regNo = userRows[0].identifier || userRows[0].roll_number;
+        // Delete leave requests associated with this student
+        await db.query(`DELETE FROM leave_requests WHERE student_id = ? OR reg_no = ?`, [id, regNo]);
+        const [result] = await db.query(`DELETE FROM users WHERE id = ? AND role = 'student'`, [id]);
+        return res.json({ success: true, message: 'Student account deleted successfully.' });
     } catch (error) {
         console.error('Delete student error:', error);
         return res.status(500).json({ success: false, message: error.message });
@@ -259,6 +261,9 @@ exports.updateStudent = async (req, res) => {
 exports.deleteStaff = async (req, res) => {
     try {
         const { id } = req.params;
+        await db.query(`UPDATE leave_requests SET incharge_id = NULL WHERE incharge_id = ?`, [id]);
+        await db.query(`UPDATE leave_requests SET hod_id = NULL WHERE hod_id = ?`, [id]);
+        await db.query(`UPDATE leave_requests SET warden_id = NULL WHERE warden_id = ?`, [id]);
         const [result] = await db.query(`DELETE FROM users WHERE id = ? AND role IN ('incharge', 'advisor', 'hod', 'warden')`, [id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: 'Staff member not found.' });
