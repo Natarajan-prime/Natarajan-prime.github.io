@@ -2006,4 +2006,5 @@ body[data-page="login"] {
     text-align: center;
     padding: 10px;
     margin-top: 20px;
+    display: inline-block;
 }
