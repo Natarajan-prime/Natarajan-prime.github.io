@@ -307,7 +307,7 @@ button{font-family:inherit;}
   margin-bottom:8px;
 }
 .sidebar .crest-sm{
-  width:36px;height:36px;
+  width:56px;height:56px;
   border:2px solid var(--gold-500);
   border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -1116,7 +1116,7 @@ textarea {
 }
 
 /* Print Media Query */
-@media print {
+@media {
   @page {
     size: A4 portrait;
     margin: 8mm 10mm;
@@ -1243,8 +1243,8 @@ textarea {
   }
 
   .sidebar .crest-sm {
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
     font-size: 12px;
     border-radius: 50%;
     flex-shrink: 0;
