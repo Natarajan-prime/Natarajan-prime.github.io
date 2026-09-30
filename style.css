@@ -307,7 +307,7 @@ button{font-family:inherit;}
   margin-bottom:8px;
 }
 .sidebar .crest-sm{
-  width:56px;height:56px;
+  width:86px;height:86px;
   border:2px solid var(--gold-500);
   border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -1243,8 +1243,8 @@ textarea {
   }
 
   .sidebar .crest-sm {
-    width: 42px;
-    height: 42px;
+    width: 62px;
+    height: 62px;
     font-size: 12px;
     border-radius: 50%;
     flex-shrink: 0;
