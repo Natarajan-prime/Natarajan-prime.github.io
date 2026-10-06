@@ -719,7 +719,7 @@ function buildPrintSheet(req) {
         </div>
       </div>
     </div>
-  `;
+  `
 }
 
 async function printRequest(requestId) {

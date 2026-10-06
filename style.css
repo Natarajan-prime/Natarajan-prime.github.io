@@ -2002,7 +2002,7 @@ body[data-page="login"] {
   color: #0f172a;
   font-weight: 700;
 }
-/* .slip-footer {
+.slip-footer {
   background-color: #0877e6;
   margin-top: 18px;
   display: flex;
@@ -2011,7 +2011,7 @@ body[data-page="login"] {
   border-top: 1px solid #cbd5e1;
   padding-top: 16px;
   font-size: 11px;
-} */
+} 
 .slip-stamp-box {
   width: 130px;
   height: 55px;
